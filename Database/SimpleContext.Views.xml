@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<views MappingHash="d3ddd99ddaf4e4efd6ceb02488a790a4256f0af20163b25358f9f3cd8942267c">
+  <view extent="CodeFirstDatabase.Job"><![CDATA[
+    SELECT VALUE -- Constructing Job
+        [CodeFirstDatabaseSchema.Job](T1.Job_ID, T1.Job_Name)
+    FROM (
+        SELECT 
+            T.ID AS Job_ID, 
+            T.Name AS Job_Name, 
+            True AS _from0
+        FROM SimpleContext.Jobs AS T
+    ) AS T1]]></view>
+  <view extent="CodeFirstDatabase.Organisation"><![CDATA[
+    SELECT VALUE -- Constructing Organisation
+        [CodeFirstDatabaseSchema.Organisation](T1.Organisation_ID, T1.Organisation_Name)
+    FROM (
+        SELECT 
+            T.ID AS Organisation_ID, 
+            T.Name AS Organisation_Name, 
+            True AS _from0
+        FROM SimpleContext.Organisations AS T
+    ) AS T1]]></view>
+  <view extent="CodeFirstDatabase.User"><![CDATA[
+    SELECT VALUE -- Constructing User
+        [CodeFirstDatabaseSchema.User](T1.User_ID, T1.User_Name, T1.User_Surname, T1.User_OrganisationID)
+    FROM (
+        SELECT 
+            T.ID AS User_ID, 
+            T.Name AS User_Name, 
+            T.Surname AS User_Surname, 
+            T.OrganisationID AS User_OrganisationID, 
+            True AS _from0
+        FROM SimpleContext.Users AS T
+    ) AS T1]]></view>
+  <view extent="CodeFirstDatabase.UserJob"><![CDATA[
+    SELECT VALUE -- Constructing UserJob
+        [CodeFirstDatabaseSchema.UserJob](T4.UserJob_ID, T4.[UserJob.Job_ID], T4.[UserJob.User_ID])
+    FROM (
+        SELECT T1.UserJob_ID, T3.[UserJob.Job_ID], T2.[UserJob.User_ID], (T3._from0 AND T3._from0 IS NOT NULL) AS _from0, (T2._from1 AND T2._from1 IS NOT NULL) AS _from1, T1._from2
+        FROM  (
+            SELECT 
+                T.ID AS UserJob_ID, 
+                True AS _from2
+            FROM SimpleContext.UserJobs AS T) AS T1
+            LEFT OUTER JOIN (
+            SELECT 
+                Key(T.UserJob_User_Source).ID AS UserJob_ID, 
+                Key(T.UserJob_User_Target).ID AS [UserJob.User_ID], 
+                True AS _from1
+            FROM SimpleContext.UserJob_User AS T) AS T2
+            ON T1.UserJob_ID = T2.UserJob_ID
+            LEFT OUTER JOIN (
+            SELECT 
+                Key(T.UserJob_Job_Source).ID AS UserJob_ID, 
+                Key(T.UserJob_Job_Target).ID AS [UserJob.Job_ID], 
+                True AS _from0
+            FROM SimpleContext.UserJob_Job AS T) AS T3
+            ON T1.UserJob_ID = T3.UserJob_ID
+    ) AS T4]]></view>
+  <view extent="SimpleContext.Jobs"><![CDATA[
+    SELECT VALUE -- Constructing Jobs
+        [Database.Job](T1.Job_ID, T1.Job_Name)
+    FROM (
+        SELECT 
+            T.ID AS Job_ID, 
+            T.Name AS Job_Name, 
+            True AS _from0
+        FROM CodeFirstDatabase.Job AS T
+    ) AS T1]]></view>
+  <view extent="SimpleContext.Organisations"><![CDATA[
+    SELECT VALUE -- Constructing Organisations
+        [Database.Organisation](T1.Organisation_ID, T1.Organisation_Name)
+    FROM (
+        SELECT 
+            T.ID AS Organisation_ID, 
+            T.Name AS Organisation_Name, 
+            True AS _from0
+        FROM CodeFirstDatabase.Organisation AS T
+    ) AS T1]]></view>
+  <view extent="SimpleContext.Users"><![CDATA[
+    SELECT VALUE -- Constructing Users
+        [Database.User](T1.User_ID, T1.User_Name, T1.User_Surname, T1.User_OrganisationID)
+    FROM (
+        SELECT 
+            T.ID AS User_ID, 
+            T.Name AS User_Name, 
+            T.Surname AS User_Surname, 
+            T.OrganisationID AS User_OrganisationID, 
+            True AS _from0
+        FROM CodeFirstDatabase.User AS T
+    ) AS T1]]></view>
+  <view extent="SimpleContext.UserJobs"><![CDATA[
+    SELECT VALUE -- Constructing UserJobs
+        [Database.UserJob](T1.UserJob_ID) WITH 
+        RELATIONSHIP(CREATEREF(SimpleContext.Jobs, ROW(T1.[UserJob_Job.UserJob_Job_Target.ID]),[Database.Job]),[Database.UserJob_Job],UserJob_Job_Source,UserJob_Job_Target) 
+        RELATIONSHIP(CREATEREF(SimpleContext.Users, ROW(T1.[UserJob_User.UserJob_User_Target.ID]),[Database.User]),[Database.UserJob_User],UserJob_User_Source,UserJob_User_Target) 
+    FROM (
+        SELECT 
+            T.ID AS UserJob_ID, 
+            True AS _from0, 
+            T.Job_ID AS [UserJob_Job.UserJob_Job_Target.ID], 
+            T.User_ID AS [UserJob_User.UserJob_User_Target.ID]
+        FROM CodeFirstDatabase.UserJob AS T
+    ) AS T1]]></view>
+  <view extent="SimpleContext.UserJob_Job"><![CDATA[
+    SELECT VALUE -- Constructing UserJob_Job
+        [Database.UserJob_Job](T3.[UserJob_Job.UserJob_Job_Source], T3.[UserJob_Job.UserJob_Job_Target])
+    FROM (
+        SELECT -- Constructing UserJob_Job_Source
+            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_Job.UserJob_Job_Source.ID]), [Database.UserJob]) AS [UserJob_Job.UserJob_Job_Source], 
+            T2.[UserJob_Job.UserJob_Job_Target]
+        FROM (
+            SELECT -- Constructing UserJob_Job_Target
+                T1.[UserJob_Job.UserJob_Job_Source.ID], 
+                CreateRef(SimpleContext.Jobs, row(T1.[UserJob_Job.UserJob_Job_Target.ID]), [Database.Job]) AS [UserJob_Job.UserJob_Job_Target]
+            FROM (
+                SELECT 
+                    T.ID AS [UserJob_Job.UserJob_Job_Source.ID], 
+                    T.Job_ID AS [UserJob_Job.UserJob_Job_Target.ID], 
+                    True AS _from0
+                FROM CodeFirstDatabase.UserJob AS T
+                WHERE T.Job_ID IS NOT NULL
+            ) AS T1
+        ) AS T2
+    ) AS T3]]></view>
+  <view extent="SimpleContext.UserJob_User"><![CDATA[
+    SELECT VALUE -- Constructing UserJob_User
+        [Database.UserJob_User](T3.[UserJob_User.UserJob_User_Source], T3.[UserJob_User.UserJob_User_Target])
+    FROM (
+        SELECT -- Constructing UserJob_User_Source
+            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_User.UserJob_User_Source.ID]), [Database.UserJob]) AS [UserJob_User.UserJob_User_Source], 
+            T2.[UserJob_User.UserJob_User_Target]
+        FROM (
+            SELECT -- Constructing UserJob_User_Target
+                T1.[UserJob_User.UserJob_User_Source.ID], 
+                CreateRef(SimpleContext.Users, row(T1.[UserJob_User.UserJob_User_Target.ID]), [Database.User]) AS [UserJob_User.UserJob_User_Target]
+            FROM (
+                SELECT 
+                    T.ID AS [UserJob_User.UserJob_User_Source.ID], 
+                    T.User_ID AS [UserJob_User.UserJob_User_Target.ID], 
+                    True AS _from0
+                FROM CodeFirstDatabase.UserJob AS T
+                WHERE T.User_ID IS NOT NULL
+            ) AS T1
+        ) AS T2
+    ) AS T3]]></view>
+</views>
