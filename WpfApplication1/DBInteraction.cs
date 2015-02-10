@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
-namespace ConsoleApplication
+namespace DBInt
 {
     class DBInteraction
     {
@@ -133,7 +132,7 @@ namespace ConsoleApplication
             }
         }
 
-        public static void removeJobFromUser(string userSurname, string jobName)
+        public static void RemoveJobFromUser(string userSurname, string jobName)
         {
             try
             {
@@ -156,7 +155,7 @@ namespace ConsoleApplication
             }
         }
 
-        public static void removeUser(string userSurname)
+        public static void RemoveUser(string userSurname)
         {
             try
             {
