@@ -217,7 +217,7 @@ namespace DBInt
                             Name = user.u.Name,
                             Surname = user.u.Surname,
                             Organization = user.u.Organisation.Name,
-                            Jobs = string.Join(",", user.uj.Select(uj => uj.Job.Name))
+                            Jobs = string.Join(", ", user.uj.Select(uj => uj.Job.Name))
                         });
                     }
                     return objs;

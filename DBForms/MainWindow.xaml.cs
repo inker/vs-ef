@@ -139,10 +139,6 @@ namespace DbForms
                     TextBoxes["user's surname"].Visibility = Visibility.Visible;
                     break;
                 case "Add job to a user":
-                    TextBoxes["user's surname"].Visibility = Visibility.Visible;
-                    JobPanel.Children.Add(MakeTextBox("job"));
-                    JobPanel.Visibility = Visibility.Visible;
-                    break;
                 case "Remove job from a user":
                     TextBoxes["user's surname"].Visibility = Visibility.Visible;
                     JobPanel.Children.Add(MakeTextBox("job"));
@@ -174,7 +170,7 @@ namespace DbForms
                     // finding the maximal number of jobs the user can have
                     // so to know the number of columns
                     //var maxJobNum = users.Max(el => el.Value.Count);
-                    var maxJobNum = users.Max(el => el.Jobs.Split(',').Length);
+                    var maxJobNum = users.Max(el => el.Jobs.Split(new char[]{',', ' '}).Length);
                     string[] colNames = { "name", "surname", "organization", "jobs" };
                     //foreach (var c in colNames)
                     //{
