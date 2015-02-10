@@ -73,6 +73,7 @@ namespace ConsoleApplication
                         context.UserJobs.Add(userJob);
                     }
 
+
                     context.SaveChanges();
 
 
@@ -81,6 +82,15 @@ namespace ConsoleApplication
             catch (Exception e)
             {
                 Console.WriteLine(e.Data);
+            }
+        }
+
+        private static User findUser(string userSurname)
+        {
+            using (var ctx = new Database.SimpleContext())
+            {
+                var userQuery = ctx.Users.Where(u => u.Surname == userSurname);
+                return userQuery.Any() ? userQuery.First() : null;
             }
         }
 
@@ -93,8 +103,8 @@ namespace ConsoleApplication
                     //var userJobQuery = ctx.Users
                     //    .Where(u => u.Surname == userSurname)
                     //    .Join(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new {u, uj});
-                    var userQuery = ctx.Users.Where(u => u.Surname == userSurname);
-                    if (!userQuery.Any()) throw new Exception("user not found");
+                    var user = findUser(userSurname);
+                    if (user == null) throw new Exception("user not found");
                     var jobQuery = ctx.Jobs.Where(j => j.Name == jobName);
                     Job job;
                     if (jobQuery.Any())
@@ -110,14 +120,70 @@ namespace ConsoleApplication
                     }
                     var userJob = new UserJob
                     {
-                        User = userQuery.First(),
+                        User = user,
                         Job = job
                     };
                     ctx.UserJobs.Add(userJob);
+                    ctx.SaveChanges();
                 }
             } catch (Exception e)
             {
                 Console.WriteLine(e.Data);
+            }
+        }
+
+        public static void removeJobFromUser(string userSurname, string jobName)
+        {
+            try
+            {
+                using (var ctx = new Database.SimpleContext())
+                {
+                    var user = findUser(userSurname);
+                    if (user == null) throw new Exception("user not found");
+                    var userJobQuery = ctx.Jobs
+                        .Where(j => j.Name == jobName)
+                        .Join(ctx.UserJobs, j => j, uj => uj.Job, (j, uj) => new {j, uj})
+                        .Select(uj => uj);
+                    if (!userJobQuery.Any()) throw new Exception("job not found or user doesn't have job");
+                    ctx.UserJobs.Remove(userJobQuery.First().uj);
+                    ctx.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Data);
+            }
+        }
+
+        public static void removeUser(string userSurname)
+        {
+            try
+            {
+                using (var ctx = new Database.SimpleContext())
+                {
+                    var user = findUser(userSurname);
+                    if (user == null) throw new Exception("user doesn't exist");
+                    ctx.Users.Remove(user);
+                    ctx.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Data);
+            }
+        }
+
+        public static List<User> getAllUsers()
+        {
+            using (var ctx = new Database.SimpleContext())
+            {
+                var usersQuery = ctx.Users
+                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
+                if (usersQuery.Any())
+                {
+                    return usersQuery.ToList();
+                }
+                return null;
             }
         }
 
@@ -144,6 +210,8 @@ namespace ConsoleApplication
             }
             InsertUser(name, surname, org, jobs.ToArray());
         }
+
+        public static UserJob u { get; set; }
     }
 }
 
