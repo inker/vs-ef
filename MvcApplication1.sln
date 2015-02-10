@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcApplication1", "MvcAppli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{95C54339-D775-4FFD-919D-7E7126A6DDF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbForms", "WpfApplication1\DbForms.csproj", "{5AF3C34D-2A15-4F83-9213-1662135294F1}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0554F1C4-C2C7-4207-96C9-7DEE616AF485}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBForms", "DBForms\DBForms.csproj", "{5AF3C34D-2A15-4F83-9213-1662135294F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
