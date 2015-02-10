@@ -1,4 +1,5 @@
 ﻿using Database.Models;
+using DbForms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,7 +86,7 @@ namespace DBInt
             }
         }
 
-        private static User findUser(string userSurname)
+        private static User FindUser(string userSurname)
         {
             using (var ctx = new Database.SimpleContext())
             {
@@ -103,7 +104,7 @@ namespace DBInt
                     //var userJobQuery = ctx.Users
                     //    .Where(u => u.Surname == userSurname)
                     //    .Join(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new {u, uj});
-                    var user = findUser(userSurname);
+                    var user = FindUser(userSurname);
                     if (user == null) throw new Exception("user not found");
                     var jobQuery = ctx.Jobs.Where(j => j.Name == jobName);
                     Job job;
@@ -138,7 +139,7 @@ namespace DBInt
             {
                 using (var ctx = new Database.SimpleContext())
                 {
-                    var user = findUser(userSurname);
+                    var user = FindUser(userSurname);
                     if (user == null) throw new Exception("user not found");
                     var userJobQuery = ctx.Jobs
                         .Where(j => j.Name == jobName)
@@ -161,7 +162,7 @@ namespace DBInt
             {
                 using (var ctx = new Database.SimpleContext())
                 {
-                    var user = findUser(userSurname);
+                    var user = FindUser(userSurname);
                     if (user == null) throw new Exception("user doesn't exist");
                     ctx.Users.Remove(user);
                     ctx.SaveChanges();
@@ -173,7 +174,7 @@ namespace DBInt
             }
         }
 
-        public static Dictionary<User, List<Job>> getAllUsers()
+        public static Dictionary<User, List<Job>> GetAllUsers()
         {
             using (var ctx = new Database.SimpleContext())
             {
@@ -188,6 +189,40 @@ namespace DBInt
                     }
                     return dict;
                 }
+                ctx.SaveChanges();
+                return null;
+            }
+        }
+
+        public async static Task<List<DataObject>> GetAllUsersTextAsync()
+        {
+            var task = await Task<List<DataObject>>.Factory.StartNew(() => GetAllUsersText());
+            return task;
+            //var task = await Task<List<DataObject>>(() => GetAllUsersText());
+        }
+
+        public static List<DataObject> GetAllUsersText()
+        {
+            using (var ctx = new Database.SimpleContext())
+            {
+                var usersQuery = ctx.Users
+                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
+                if (usersQuery.Any())
+                {
+                    var objs = new List<DataObject>();
+                    foreach (var user in usersQuery)
+                    {
+                        objs.Add(new DataObject
+                        {
+                            Name = user.u.Name,
+                            Surname = user.u.Surname,
+                            Organization = user.u.Organisation.Name,
+                            Jobs = string.Join(",", user.uj.Select(uj => uj.Job.Name))
+                        });
+                    }
+                    return objs;
+                }
+                ctx.SaveChanges();
                 return null;
             }
         }

@@ -14,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections;
 using DBInt;
+using System.Timers;
+using Database.Models;
 
 namespace DbForms
 {
@@ -22,21 +24,27 @@ namespace DbForms
     /// </summary>
     /// 
 
+    public class DataObject
+    {
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string Organization { get; set; }
+        public string Jobs { get; set; } 
+
+    }
+
 
     public partial class MainWindow : Window
     {
 
-        private class DataObject
-        {
-            public string Name { get; set; }
-            public string Surname { get; set; }
-            public string Organization { get; set; }
-            public string Jobs { get; set; } 
+        
 
-        }
-
-        //private Dictionary<TextBox, string> placeholders;
-        private Dictionary<string, TextBox> textBoxes;
+        private Dictionary<string, TextBox> TextBoxes = new Dictionary<string, TextBox>();
+        private ComboBox SelectMode = new ComboBox();
+        private StackPanel Panel = new StackPanel();
+        private StackPanel JobPanel = new StackPanel();
+        private Button NewJobButton = new Button();
+        private DataGrid DG = new DataGrid();
 
         private TextBox MakeTextBox(string text)
         {
@@ -44,7 +52,7 @@ namespace DbForms
             textBox.Text = text;
             textBox.Width = 120;
             textBox.Height = 23;
-            textBoxes[text] = textBox;
+            TextBoxes[text] = textBox;
             textBox.GotFocus += ToggleFocus;
             textBox.LostFocus += ToggleFocus;
             return textBox;
@@ -54,171 +62,192 @@ namespace DbForms
         {
             InitializeComponent();
 
-            var panel = new StackPanel();
-            someGrid.Children.Add(panel);
-            var selectMode = new ComboBox();
-            panel.Children.Add(selectMode);
-            
-            string[] stringItems = { "Insert user", "Delete user", "Add job to a user", "Remove job from a user", "Show all users" };
-            foreach (var i in stringItems)
-            {
-                selectMode.Items.Add(i);
-            }
-            selectMode.Width = 120;
-            selectMode.Height = 25;
-            var newJobPanel = new StackPanel();
-            newJobPanel.Visibility = Visibility.Collapsed;
-            
-            var newJobButton = new Button();
-            newJobButton.Click += (sender, e) =>
-            {
-                var textbox = MakeTextBox("job " + newJobPanel.Children.Count);
-                newJobPanel.Children.Add(textbox);
-            };
+            string[] stringItems = { "SELECT MODE", "Insert user", "Delete user", "Add job to a user", "Remove job from a user", "Show all users" };
+            foreach (var i in stringItems) SelectMode.Items.Add(i);
+            SelectMode.GotMouseCapture += selectMode_GotMouseCapture;
+            SelectMode.SelectedIndex = 0;
+            SelectMode.Width = 120;
+            SelectMode.Height = 25;
+            SelectMode.SelectionChanged += selectMode_SelectionChanged;
+            Panel.Children.Add(SelectMode);
 
-            var dg = new DataGrid();
-            dg.Width = 400;
-            dg.Height = 400;
-            dg.Visibility = Visibility.Collapsed;
-
-            panel.Children.Add(dg);
-            //newJobButton.Visibility = Visibility.Collapsed;
-            selectMode.SelectionChanged += (sender, e) =>
-            {
-                foreach (var tb in textBoxes) tb.Value.Visibility = Visibility.Collapsed;
-                newJobPanel.Visibility = Visibility.Collapsed;
-                newJobPanel.Children.Clear();
-                dg.Visibility = Visibility.Collapsed;
-                var selected = (sender as ComboBox).SelectedItem as string;
-                switch (selected)
-                {
-                    case "Insert user":
-                        foreach (var tb in textBoxes)
-                        {
-                            tb.Value.Visibility = Visibility.Visible;
-                        }
-                        newJobPanel.Children.Add(newJobButton);
-                        newJobButton.Content = "new job row";
-                        newJobPanel.Visibility = Visibility.Visible;
-                        break;
-                    case "Delete user":
-                        textBoxes["user's surname"].Visibility = Visibility.Visible;
-                        break;
-                    case "Add job to a user":
-                        textBoxes["user's surname"].Visibility = Visibility.Visible;
-                        newJobPanel.Children.Add(MakeTextBox("job"));
-                        break;
-                    case "Remove job from a user":
-                        textBoxes["user's surname"].Visibility = Visibility.Visible;
-                        newJobPanel.Children.Add(MakeTextBox("job"));
-                        break;
-                    case "Show all users":
-                        var users = DBInteraction.getAllUsers();
-                        // finding the maximal number of jobs the user can have
-                        // so to know the number of columns
-                        var maxJobNum = users.Max(el => el.Value.Count);
-                        foreach (var u in users)
-                        {
-                            
-                        }
-                        
-                        var nameCol = new DataGridTextColumn();
-                        nameCol.MinWidth = 50;
-                        nameCol.Binding = new Binding("name");
-                        var surnameCol = new DataGridTextColumn();
-                        surnameCol.MinWidth = 50;
-                        surnameCol.Binding = new Binding("surname");
-                        var orgCol = new DataGridTextColumn();
-                        orgCol.MinWidth = 50;
-                        orgCol.Binding = new Binding("organization");
-                        var jobsCol = new DataGridTextColumn();
-                        jobsCol.MinWidth = 50;
-                        jobsCol.Binding = new Binding("jobs");
-                        dg.Columns.Add(nameCol);
-                        dg.Columns.Add(surnameCol);
-                        dg.Columns.Add(orgCol);
-                        dg.Columns.Add(jobsCol);
-                        var list = new List<DataObject>();
-                        foreach (var u in users) list.Add(new DataObject
-                        {
-                            Name = u.Key.Name,
-                            Surname = u.Key.Surname,
-                            Organization = u.Key.Organisation.Name,
-                            Jobs = string.Join(",", u.Value)
-                        });
-                        dg.ItemsSource = list;
-                        dg.Visibility = Visibility.Visible;
-                        break;
-                    default:
-                        break;
-                }
-            };
+            DG.Width = 400;
+            DG.Height = 400;
+            DG.Visibility = Visibility.Collapsed;
+            Panel.Children.Add(DG);
+            
             string[] placeholders = { "user's name", "user's surname", "organization" };
-            textBoxes = new Dictionary<string, TextBox>();
-            
-            
             foreach (var p in placeholders)
             {
                 var textBox = MakeTextBox(p);
+                textBox.Visibility = Visibility.Collapsed;
                 //Grid.SetRow(textBox, i);
                 //textBox.Margin = new Thickness(0, 50 + 50 * i, 0, 0);
                 //textBoxes.Add(p, textBox);
-                panel.Children.Add(textBox);
+                Panel.Children.Add(textBox);
                 //someGrid.Children.Add(textBox);
             }
-            panel.Children.Add(newJobPanel);
-            
-            someGrid.Margin = new Thickness(0, 0, 0, 0);
-            this.KeyDown += (sender, e) =>
-            {
-                if (e.Key == Key.Enter)
-                {
-                    var userName = textBoxes["user's name"].Text;
-                    var userSurname = textBoxes["user's surname"].Text;
-                    var org = textBoxes["user's organization"].Text;
-                    var selected = selectMode.SelectedItem as string;
-                    switch (selected)
-                    {
-                        case "Insert user":
-                            var jobs = new List<string>();
-                            for (var i = 1; i < newJobPanel.Children.Count; ++i)
-                            {
-                                jobs.Add((newJobPanel.Children[i] as TextBox).Text);
-                            }
-                            DBInteraction.InsertUser(userName, userSurname, org, jobs.ToArray());
-                            break;
-                        case "Delete user":
-                            DBInteraction.RemoveUser(userSurname);
-                            break;
-                        case "Add job to a user":
-                            DBInteraction.AddJobToUser(userSurname, (newJobPanel.Children[0] as TextBox).Text);
-                            break;
-                        case "Remove job from a user":
-                            DBInteraction.RemoveJobFromUser(userSurname, (newJobPanel.Children[0] as TextBox).Text);
-                            break;
-                        default:
-                            break;
-                    }
-                    
-                }
-            };
 
+            NewJobButton.Content = "new job row";
+            NewJobButton.Click += (s, e) => JobPanel.Children.Add(MakeTextBox("job " + JobPanel.Children.Count));
+            JobPanel.Visibility = Visibility.Collapsed;
+            Panel.Children.Add(JobPanel);
+
+            Panel.HorizontalAlignment = HorizontalAlignment.Left;
+            someGrid.Children.Add(Panel);
+            someGrid.Margin = new Thickness(0, 0, 0, 0);
+            someGrid.Margin = new Thickness(0, 0, 0, 0);
+
+
+
+            this.KeyDown += MainWindow_KeyDown;
         }
 
         private void ToggleFocus(object sender, RoutedEventArgs e)
         {
-
             var textBox = sender as TextBox;
-            var placeholder = textBoxes.Single(x => x.Value == textBox).Key;
-            if (textBox.Text == "")
+            var placeholder = TextBoxes.Single(x => x.Value == textBox).Key;
+            
+            if (textBox.Text == "") textBox.Text = placeholder;
+            else if (textBox.Text == placeholder) textBox.Text = "";
+        }
+
+        void selectMode_GotMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (SelectMode.Items[0] == "SELECT MODE") SelectMode.Items.RemoveAt(0);
+        }
+
+        private async void selectMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            foreach (var tb in TextBoxes) tb.Value.Visibility = Visibility.Collapsed;
+            //newJobPanel.Visibility = Visibility.Collapsed;
+            JobPanel.Children.Clear();
+            DG.Visibility = Visibility.Collapsed;
+            var selected = SelectMode.SelectedItem as string;
+            switch (selected)
             {
-                textBox.Text = placeholder;
-            }
-            else if (textBox.Text == placeholder)
-            {
-                textBox.Text = "";
+                case "Insert user":
+                    foreach (var tb in TextBoxes)
+                    {
+                        tb.Value.Visibility = Visibility.Visible;
+                    }
+                    JobPanel.Children.Add(NewJobButton);
+                    JobPanel.Visibility = Visibility.Visible;
+                    break;
+                case "Delete user":
+                    TextBoxes["user's surname"].Visibility = Visibility.Visible;
+                    break;
+                case "Add job to a user":
+                    TextBoxes["user's surname"].Visibility = Visibility.Visible;
+                    JobPanel.Children.Add(MakeTextBox("job"));
+                    JobPanel.Visibility = Visibility.Visible;
+                    break;
+                case "Remove job from a user":
+                    TextBoxes["user's surname"].Visibility = Visibility.Visible;
+                    JobPanel.Children.Add(MakeTextBox("job"));
+                    JobPanel.Visibility = Visibility.Visible;
+                    break;
+                case "Show all users":
+                    //Dictionary<User, List<Job>> users = null;
+                    //var task = Task<Dictionary<User, List<Job>>>.Factory.StartNew(() => DBInteraction.GetAllUsers());
+                    //users = task.Result;
+                    StatusText.Text = "fetching users";
+                    List<DataObject> users = null;
+                    var timer = new Timer(100);
+                    timer.Elapsed += (s, ev) =>
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            StatusText.Text = StatusText.Text + ".";
+                            if (users != null)
+                            {
+                                timer.Stop();
+                            }
+                            
+                        }));
+
+                    };
+                    timer.Start();
+                    users = await DBInteraction.GetAllUsersTextAsync();
+                    StatusText.Text = "users found: " + users.Count;
+                    // finding the maximal number of jobs the user can have
+                    // so to know the number of columns
+                    //var maxJobNum = users.Max(el => el.Value.Count);
+                    var maxJobNum = users.Max(el => el.Jobs.Split(',').Length);
+                    string[] colNames = { "name", "surname", "organization", "jobs" };
+                    //foreach (var c in colNames)
+                    //{
+                    //    var col = new DataGridTextColumn();
+                    //    col.MinWidth = 50;
+                    //    col.Binding = new Binding(c);
+                    //    dg.Columns.Add(col);
+                    //}
+                    var list = new List<DataObject>();
+                    foreach (var u in users)
+                    {
+                        list.Add(u);
+                        //list.Add(new DataObject
+                        //{
+                        //    Name = u.Key.Name,
+                        //    Surname = u.Key.Surname,
+                        //    Organization = u.Key.Organisation.Name,
+                        //    Jobs = string.Join(",", u.Value)
+                        //});
+                    }
+                    DG.ItemsSource = list;
+                    DG.Visibility = Visibility.Visible;
+                    DG.Height = 200;
+                    StatusText.Text = "";
+                    break;
+                default:
+                    break;
             }
         }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var userName = TextBoxes["user's name"].Text;
+                var userSurname = TextBoxes["user's surname"].Text;
+                var org = TextBoxes["organization"].Text;
+                var selected = SelectMode.SelectedItem as string;
+                switch (selected)
+                {
+                    case "Insert user":
+                        var jobs = new List<string>();
+                        for (var i = 1; i < JobPanel.Children.Count; ++i)
+                        {
+                            var jobText = (JobPanel.Children[i] as TextBox).Text;
+                            if (jobText != "" && !jobText.StartsWith("job "))
+                            {
+                                jobs.Add(jobText);
+                            }                
+                        }
+                        DBInteraction.InsertUser(userName, userSurname, org, jobs.ToArray());
+                        StatusText.Text = "user inserted successfully";
+                        break;
+                    case "Delete user":
+                        DBInteraction.RemoveUser(userSurname);
+                        StatusText.Text = "user removed successfully";
+                        break;
+                    case "Add job to a user":
+                        DBInteraction.AddJobToUser(userSurname, (JobPanel.Children[0] as TextBox).Text);
+                        StatusText.Text = "job added successfully";
+                        break;
+                    case "Remove job from a user":
+                        DBInteraction.RemoveJobFromUser(userSurname, (JobPanel.Children[0] as TextBox).Text);
+                        StatusText.Text = "job removed successfully";
+                        break;
+                    default:
+                        break;
+                }
+                    
+            }
+        }
+
+
 
     }
 }
