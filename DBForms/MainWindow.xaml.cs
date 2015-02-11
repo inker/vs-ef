@@ -140,9 +140,6 @@ namespace DbForms
                     JobPanel.Visibility = Visibility.Visible;
                     break;
                 case "Show all users":
-                    //Dictionary<User, List<Job>> users = null;
-                    //var task = Task<Dictionary<User, List<Job>>>.Factory.StartNew(() => DBInteraction.GetAllUsers());
-                    //users = task.Result;
                     StatusText.Text = "fetching users";
                     List<DataObject> users = null;
                     var timer = new Timer(500);
@@ -163,29 +160,10 @@ namespace DbForms
                     users = await DBInteraction.GetAllUsersTextAsync();
                     //var users = DBInteraction.GetAllUsersText();
                     StatusText.Text = "users found: " + users.Count;
-                    // finding the maximal number of jobs the user can have
-                    // so to know the number of columns
-                    //var maxJobNum = users.Max(el => el.Value.Count);
-                    //var maxJobNum = users.Max(el => el.Jobs.Split(new char[]{',', ' '}).Length);
-                    string[] colNames = { "name", "surname", "organization", "jobs" };
-                    //foreach (var c in colNames)
-                    //{
-                    //    var col = new DataGridTextColumn();
-                    //    col.MinWidth = 50;
-                    //    col.Binding = new Binding(c);
-                    //    dg.Columns.Add(col);
-                    //}
                     var list = new List<DataObject>();
                     foreach (var u in users)
                     {
                         list.Add(u);
-                        //list.Add(new DataObject
-                        //{
-                        //    Name = u.Key.Name,
-                        //    Surname = u.Key.Surname,
-                        //    Organization = u.Key.Organisation.Name,
-                        //    Jobs = string.Join(",", u.Value)
-                        //});
                     }
                     DG.ItemsSource = list;
                     DG.Visibility = Visibility.Visible;
