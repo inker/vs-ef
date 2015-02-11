@@ -76,11 +76,7 @@ namespace DbForms
             {
                 var textBox = MakeTextBox(p);
                 textBox.Visibility = Visibility.Collapsed;
-                //Grid.SetRow(textBox, i);
-                //textBox.Margin = new Thickness(0, 50 + 50 * i, 0, 0);
-                //textBoxes.Add(p, textBox);
                 Panel.Children.Add(textBox);
-                //someGrid.Children.Add(textBox);
             }
 
             NewJobButton.Content = "new job row";
@@ -114,7 +110,7 @@ namespace DbForms
         {
 
             foreach (var tb in TextBoxes) tb.Value.Visibility = Visibility.Collapsed;
-            //newJobPanel.Visibility = Visibility.Collapsed;
+            JobPanel.Visibility = Visibility.Collapsed;
             JobPanel.Children.Clear();
             DG.Visibility = Visibility.Collapsed;
             var selected = SelectMode.SelectedItem as string;
@@ -140,6 +136,7 @@ namespace DbForms
                     JobPanel.Visibility = Visibility.Visible;
                     break;
                 case "Show all users":
+                    var task = DBInteraction.GetAllUsersTextAsync();
                     StatusText.Text = "fetching users";
                     List<DataObject> users = null;
                     var timer = new Timer(500);
@@ -147,18 +144,13 @@ namespace DbForms
                     {
                         this.Dispatcher.Invoke((Action)(() =>
                         {
+                            //if (users != null) timer.Stop();
                             StatusText.Text = StatusText.Text + ".";
-                            if (users != null)
-                            {
-                                timer.Stop();
-                            }
-                            
-                        }));
-
+                        })); 
                     };
                     timer.Start();
-                    users = await DBInteraction.GetAllUsersTextAsync();
-                    //var users = DBInteraction.GetAllUsersText();
+                    users = await task;
+                    timer.Stop();
                     StatusText.Text = "users found: " + users.Count;
                     var list = new List<DataObject>();
                     foreach (var u in users)
