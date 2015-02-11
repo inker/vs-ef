@@ -30,15 +30,10 @@ namespace DbForms
         public string Surname { get; set; }
         public string Organization { get; set; }
         public string Jobs { get; set; } 
-
     }
-
 
     public partial class MainWindow : Window
     {
-
-        
-
         private Dictionary<string, TextBox> TextBoxes = new Dictionary<string, TextBox>();
         private ComboBox SelectMode = new ComboBox();
         private StackPanel Panel = new StackPanel();
@@ -64,11 +59,11 @@ namespace DbForms
 
             string[] stringItems = { "SELECT MODE", "Insert user", "Delete user", "Add job to a user", "Remove job from a user", "Show all users" };
             foreach (var i in stringItems) SelectMode.Items.Add(i);
-            SelectMode.GotMouseCapture += selectMode_GotMouseCapture;
+            SelectMode.GotMouseCapture += SelectMode_GotMouseCapture;
             SelectMode.SelectedIndex = 0;
             SelectMode.Width = 120;
             SelectMode.Height = 25;
-            SelectMode.SelectionChanged += selectMode_SelectionChanged;
+            SelectMode.SelectionChanged += SelectMode_SelectionChanged;
             Panel.Children.Add(SelectMode);
 
             DG.Width = 400;
@@ -96,9 +91,6 @@ namespace DbForms
             Panel.HorizontalAlignment = HorizontalAlignment.Left;
             someGrid.Children.Add(Panel);
             someGrid.Margin = new Thickness(0, 0, 0, 0);
-            someGrid.Margin = new Thickness(0, 0, 0, 0);
-
-
 
             this.KeyDown += MainWindow_KeyDown;
         }
@@ -112,13 +104,13 @@ namespace DbForms
             else if (textBox.Text == placeholder) textBox.Text = "";
         }
 
-        void selectMode_GotMouseCapture(object sender, MouseEventArgs e)
+        void SelectMode_GotMouseCapture(object sender, MouseEventArgs e)
         {
             if (SelectMode.Items[0] as string == "SELECT MODE") SelectMode.Items.RemoveAt(0);
-            SelectMode.GotMouseCapture -= selectMode_GotMouseCapture;
+            SelectMode.GotMouseCapture -= SelectMode_GotMouseCapture;
         }
 
-        private async void selectMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void SelectMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
             foreach (var tb in TextBoxes) tb.Value.Visibility = Visibility.Collapsed;
@@ -152,25 +144,25 @@ namespace DbForms
                     //var task = Task<Dictionary<User, List<Job>>>.Factory.StartNew(() => DBInteraction.GetAllUsers());
                     //users = task.Result;
                     StatusText.Text = "fetching users";
-                    //List<DataObject> users = null;
-                    //var timer = new Timer(500);
-                    //timer.Elapsed += (s, ev) =>
-                    //{
-                    //    this.Dispatcher.Invoke((Action)(() =>
-                    //    {
-                    //        StatusText.Text = StatusText.Text + ".";
-                    //        if (users != null)
-                    //        {
-                    //            timer.Stop();
-                    //        }
+                    List<DataObject> users = null;
+                    var timer = new Timer(500);
+                    timer.Elapsed += (s, ev) =>
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            StatusText.Text = StatusText.Text + ".";
+                            if (users != null)
+                            {
+                                timer.Stop();
+                            }
                             
-                    //    }));
+                        }));
 
-                    //};
-                    //timer.Start();
-                    //users = await DBInteraction.GetAllUsersTextAsync();
-                    var users = DBInteraction.GetAllUsersText();
-                    //StatusText.Text = "users found: " + users.Count;
+                    };
+                    timer.Start();
+                    users = await DBInteraction.GetAllUsersTextAsync();
+                    //var users = DBInteraction.GetAllUsersText();
+                    StatusText.Text = "users found: " + users.Count;
                     // finding the maximal number of jobs the user can have
                     // so to know the number of columns
                     //var maxJobNum = users.Max(el => el.Value.Count);
@@ -198,7 +190,6 @@ namespace DbForms
                     DG.ItemsSource = list;
                     DG.Visibility = Visibility.Visible;
                     DG.Height = 200;
-                    StatusText.Text = "";
                     break;
                 default:
                     break;
