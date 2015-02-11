@@ -114,7 +114,8 @@ namespace DbForms
 
         void selectMode_GotMouseCapture(object sender, MouseEventArgs e)
         {
-            if (SelectMode.Items[0] == "SELECT MODE") SelectMode.Items.RemoveAt(0);
+            if (SelectMode.Items[0] as string == "SELECT MODE") SelectMode.Items.RemoveAt(0);
+            SelectMode.GotMouseCapture -= selectMode_GotMouseCapture;
         }
 
         private async void selectMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -150,7 +151,7 @@ namespace DbForms
                     //users = task.Result;
                     StatusText.Text = "fetching users";
                     List<DataObject> users = null;
-                    var timer = new Timer(100);
+                    var timer = new Timer(500);
                     timer.Elapsed += (s, ev) =>
                     {
                         this.Dispatcher.Invoke((Action)(() =>
