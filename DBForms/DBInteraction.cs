@@ -1,4 +1,5 @@
-﻿using Database.Models;
+﻿using Database;
+using Database.Models;
 using DbForms;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace DBInt
         {
             try
             {
-                using (var context = new Database.SimpleContext())
+                using (var context = new SimpleContext())
                 {
                     var orgQuery = context.Organisations.Where(o => o.Name == organizationName);
                     var orgs = orgQuery.ToList();
@@ -86,16 +87,16 @@ namespace DBInt
             }
         }
 
-        private static User FindUser(string userSurname)
-        {
-            using (var ctx = new Database.SimpleContext())
-            {
-                var userQuery = ctx.Users.Where(u => u.Surname == userSurname);
-                return userQuery.Any() ? userQuery.First() : null;
-            }
-        }
+        //private static User FindUser(string userSurname)
+        //{
+        //    using (var ctx = new Database.SimpleContext())
+        //    {
+        //        var userQuery = ctx.Users.Where(u => u.Surname == userSurname);
+        //        return userQuery.Any() ? userQuery.First() : null;
+        //    }
+        //}
 
-        public static void AddJobToUser(string userSurname, string jobName)
+        public static void AddJobToUser(string userName, string userSurname, string jobName)
         {
             try
             {
@@ -104,8 +105,9 @@ namespace DBInt
                     //var userJobQuery = ctx.Users
                     //    .Where(u => u.Surname == userSurname)
                     //    .Join(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new {u, uj});
-                    var user = FindUser(userSurname);
-                    if (user == null) throw new Exception("user not found");
+                    var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
+                    if (!userQuery.Any()) throw new Exception("user not found");
+                    var user = userQuery.First();
                     var jobQuery = ctx.Jobs.Where(j => j.Name == jobName);
                     Job job;
                     if (jobQuery.Any())
@@ -133,14 +135,15 @@ namespace DBInt
             }
         }
 
-        public static void RemoveJobFromUser(string userSurname, string jobName)
+        public static void RemoveJobFromUser(string userName, string userSurname, string jobName)
         {
             try
             {
                 using (var ctx = new Database.SimpleContext())
                 {
-                    var user = FindUser(userSurname);
-                    if (user == null) throw new Exception("user not found");
+                    var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
+                    if (!userQuery.Any()) throw new Exception("user not found");
+                    var user = userQuery.First();
                     var userJobQuery = ctx.Jobs
                         .Where(j => j.Name == jobName)
                         .Join(ctx.UserJobs, j => j, uj => uj.Job, (j, uj) => new {j, uj})
@@ -156,16 +159,22 @@ namespace DBInt
             }
         }
 
-        public static void RemoveUser(string userSurname)
+        public static void RemoveUser(string userName, string userSurname)
         {
             try
             {
-                using (var ctx = new Database.SimpleContext())
+                using (var ctx = new SimpleContext())
                 {
-                    var user = FindUser(userSurname);
-                    if (user == null) throw new Exception("user doesn't exist");
-                    ctx.Users.Remove(user);
-                    ctx.SaveChanges();
+                    //var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
+                    //if (!userQuery.Any()) throw new Exception("user not found");
+                    var user = ctx.Users.SingleOrDefault(u => u.Name == userName && u.Surname == userSurname);
+                    if (user != null)
+                    {
+                        ctx.Users.Remove(user);
+                        ctx.SaveChanges();
+                    }
+                    //ctx.Entry(user).State = System.Data.Entity.EntityState.Deleted;
+                    
                 }
             }
             catch (Exception e)
@@ -176,7 +185,7 @@ namespace DBInt
 
         public static Dictionary<User, List<Job>> GetAllUsers()
         {
-            using (var ctx = new Database.SimpleContext())
+            using (var ctx = new SimpleContext())
             {
                 var usersQuery = ctx.Users
                     .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
@@ -203,14 +212,15 @@ namespace DBInt
 
         public static List<DataObject> GetAllUsersText()
         {
-            using (var ctx = new Database.SimpleContext())
+            using (var ctx = new SimpleContext())
             {
                 var usersQuery = ctx.Users
                     .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
+                var users = usersQuery.ToList();
                 if (usersQuery.Any())
                 {
                     var objs = new List<DataObject>();
-                    foreach (var user in usersQuery)
+                    foreach (var user in users)
                     {
                         objs.Add(new DataObject
                         {

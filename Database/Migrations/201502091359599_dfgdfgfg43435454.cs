@@ -25,8 +25,8 @@ namespace Database.Migrations
                         User_ID = c.Long(),
                     })
                 .PrimaryKey(t => t.ID)
-                .ForeignKey("dbo.Jobs", t => t.Job_ID)
-                .ForeignKey("dbo.Users", t => t.User_ID)
+                .ForeignKey("dbo.Jobs", t => t.Job_ID, cascadeDelete:true)
+                .ForeignKey("dbo.Users", t => t.User_ID, cascadeDelete:true)
                 .Index(t => t.Job_ID)
                 .Index(t => t.User_ID);
             

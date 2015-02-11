@@ -137,10 +137,12 @@ namespace DbForms
                     JobPanel.Visibility = Visibility.Visible;
                     break;
                 case "Delete user":
+                    TextBoxes["user's name"].Visibility = Visibility.Visible;
                     TextBoxes["user's surname"].Visibility = Visibility.Visible;
                     break;
                 case "Add job to a user":
                 case "Remove job from a user":
+                    TextBoxes["user's name"].Visibility = Visibility.Visible;
                     TextBoxes["user's surname"].Visibility = Visibility.Visible;
                     JobPanel.Children.Add(MakeTextBox("job"));
                     JobPanel.Visibility = Visibility.Visible;
@@ -150,28 +152,29 @@ namespace DbForms
                     //var task = Task<Dictionary<User, List<Job>>>.Factory.StartNew(() => DBInteraction.GetAllUsers());
                     //users = task.Result;
                     StatusText.Text = "fetching users";
-                    List<DataObject> users = null;
-                    var timer = new Timer(500);
-                    timer.Elapsed += (s, ev) =>
-                    {
-                        this.Dispatcher.Invoke((Action)(() =>
-                        {
-                            StatusText.Text = StatusText.Text + ".";
-                            if (users != null)
-                            {
-                                timer.Stop();
-                            }
+                    //List<DataObject> users = null;
+                    //var timer = new Timer(500);
+                    //timer.Elapsed += (s, ev) =>
+                    //{
+                    //    this.Dispatcher.Invoke((Action)(() =>
+                    //    {
+                    //        StatusText.Text = StatusText.Text + ".";
+                    //        if (users != null)
+                    //        {
+                    //            timer.Stop();
+                    //        }
                             
-                        }));
+                    //    }));
 
-                    };
-                    timer.Start();
-                    users = await DBInteraction.GetAllUsersTextAsync();
-                    StatusText.Text = "users found: " + users.Count;
+                    //};
+                    //timer.Start();
+                    //users = await DBInteraction.GetAllUsersTextAsync();
+                    var users = DBInteraction.GetAllUsersText();
+                    //StatusText.Text = "users found: " + users.Count;
                     // finding the maximal number of jobs the user can have
                     // so to know the number of columns
                     //var maxJobNum = users.Max(el => el.Value.Count);
-                    var maxJobNum = users.Max(el => el.Jobs.Split(new char[]{',', ' '}).Length);
+                    //var maxJobNum = users.Max(el => el.Jobs.Split(new char[]{',', ' '}).Length);
                     string[] colNames = { "name", "surname", "organization", "jobs" };
                     //foreach (var c in colNames)
                     //{
@@ -226,15 +229,15 @@ namespace DbForms
                         StatusText.Text = "user inserted successfully";
                         break;
                     case "Delete user":
-                        DBInteraction.RemoveUser(userSurname);
+                        DBInteraction.RemoveUser(userName, userSurname);
                         StatusText.Text = "user removed successfully";
                         break;
                     case "Add job to a user":
-                        DBInteraction.AddJobToUser(userSurname, (JobPanel.Children[0] as TextBox).Text);
+                        DBInteraction.AddJobToUser(userName, userSurname, (JobPanel.Children[0] as TextBox).Text);
                         StatusText.Text = "job added successfully";
                         break;
                     case "Remove job from a user":
-                        DBInteraction.RemoveJobFromUser(userSurname, (JobPanel.Children[0] as TextBox).Text);
+                        DBInteraction.RemoveJobFromUser(userName, userSurname, (JobPanel.Children[0] as TextBox).Text);
                         StatusText.Text = "job removed successfully";
                         break;
                     default:
