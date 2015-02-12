@@ -140,7 +140,14 @@ namespace DbForms
                     StatusText.Text = "fetching users";
                     List<DataObject> users = null;
                     var timer = new Timer(500);
-                    timer.Elapsed += (s, ev) => this.Dispatcher.Invoke((Action)(() => StatusText.Text = StatusText.Text + "."));
+                    timer.Elapsed += (s, ev) =>
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            //if (users != null) timer.Stop();
+                            StatusText.Text = StatusText.Text + ".";
+                        })); 
+                    };
                     timer.Start();
                     users = await task;
                     timer.Stop();
