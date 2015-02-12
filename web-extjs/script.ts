@@ -22,7 +22,7 @@ Ext.onReady(function () {
             instanceName: 'Organisation',
             primaryKey: 'ID',
             foreignKey: 'OrganisationID',
-            associationKey: 'OrganisationID',
+            associationKey: 'OrganisationID', 
             //foreignStore: 'organisationStore'
         },
         hasMany: {
