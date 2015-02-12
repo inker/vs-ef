@@ -18,7 +18,6 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="app.css" />
     <Content Include="ext-all-dev.js" />
     <Content Include="index.html" />
     <Content Include="resources\ext-theme-classic-all-debug.css" />
