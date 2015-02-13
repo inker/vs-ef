@@ -10,7 +10,7 @@ namespace MvcApplication1.Controllers
     public class UsersController : Controller
     {
         [HttpGet]
-        public ActionResult All()
+        public ActionResult Common()
         {
             using (var ctx = new SimpleContext())
             {
@@ -54,14 +54,14 @@ namespace MvcApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult All(string Name, string Surname, string Organisation, string Jobs)
+        public ActionResult Common(string Name, string Surname, string Organisation, string Jobs)
         {
             DBInteraction.InsertUser(Name, Surname, Organisation, Jobs.Split(','));
             return new HttpStatusCodeResult(200);
         }
 
         [HttpDelete]
-        public ActionResult All(string Name, string Surname)
+        public ActionResult Common(string Name, string Surname)
         {
             DBInteraction.RemoveUser(Name, Surname);
             return new HttpStatusCodeResult(200);

@@ -251,7 +251,6 @@ Ext.onReady(() => {
                 { text: "Jobs", renderer: getJobString },
                 { text: 'Org', renderer: (value, metadata, record, rowIndex, colIndex, store, view) => record.getOrganisation().get('Name') }
             ],
-            height: 200,
             width: 500,
             renderTo: Ext.getBody()
         });
@@ -317,7 +316,7 @@ Ext.onReady(() => {
                                     url: '/Users',
                                     params: insertParams,
                                     method: 'POST',
-                                    success: (response, options) => users.sync()
+                                    success: (response, options) => users.load({ callback: () => users.sync() })
                                 });
                                 resetToInitialState();
 
@@ -336,7 +335,9 @@ Ext.onReady(() => {
                                         Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
-                                    method: 'DELETE'
+                                    method: 'DELETE',
+                                    success: (response, options) => users.load({ callback: () => users.sync() })
+
                                 });
                                 resetToInitialState();
                             });
@@ -360,7 +361,18 @@ Ext.onReady(() => {
                                         Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
-                                    method: 'POST'
+                                    method: 'POST',
+                                    success: (response, options) => {
+                                        Ext.data.StoreManager.each(store => {
+                                            store.load({
+                                                callback: () => {
+                                                    store.sync();
+                                                    gridPanel.getView().refresh();
+                                                }
+                                            });
+                                        });
+                                        
+                                    }
                                 });
                                 resetToInitialState();
                             });
@@ -385,7 +397,18 @@ Ext.onReady(() => {
                                         Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
-                                    method: 'DELETE'
+                                    method: 'DELETE',
+                                    success: (response, options) => {
+                                        Ext.data.StoreManager.each(store => {
+                                            store.load({
+                                                callback: () => {
+                                                    store.sync();
+                                                    gridPanel.getView().refresh();
+                                                }
+                                            });
+                                        });
+
+                                    }
                                 });
                                 resetToInitialState();
                             });

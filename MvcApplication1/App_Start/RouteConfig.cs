@@ -22,7 +22,7 @@ namespace MvcApplication1
             routes.MapRoute(
                 name: "All",
                 url: "{controller}",
-                defaults: new { controller = "Home", action = "All" }
+                defaults: new { controller = "Home", action = "Common" }
             );
 
             routes.MapRoute(
