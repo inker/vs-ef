@@ -230,24 +230,8 @@ Ext.onReady(() => {
         hidden: true,
         vertical: true,
         width: 150,
-        items: [
-            {
-                xtype: 'textfield',
-                name: 'Name',
-                emptyText: "user's name"
-            }, {
-                xtype: 'textfield',
-                name: 'Surname',
-                emptyText: "user's surname"
-            }
-        ],
         renderTo: Ext.getBody()
     });
-
-    function initialButtonHander() {
-        button.showMenu();
-        button.setText("choose action");
-    }
 
     var button: Ext.button.ISplit = Ext.create('Ext.button.Split', {
         text: 'Action',
@@ -270,23 +254,20 @@ Ext.onReady(() => {
                             handler: () => alert('foo')
                         });
                         tb.show();
-                        button.setText("Submit");
+                        button.setText("Insert user");
                         button.setHandler(() => {
-                            tb.hide();
-                            tb.remove('org');
-                            tb.remove('addJobButton');
-                            button.setText("Action");
-                            button.setHandler(initialButtonHander);
+                            // add insertion to db
+                            resetToolbar();
                         });
                     }
                 }, {
                     text: 'Delete user',
                     handler: () => {
                         tb.show();
+                        button.setText("Delete user");
                         button.setHandler(() => {
-                            tb.hide();
-                            button.setText("Action");
-                            button.setHandler(initialButtonHander);
+                            // add deletion from db
+                            resetToolbar();
                         });
                     }
                 }, {
@@ -304,6 +285,32 @@ Ext.onReady(() => {
         }),
         renderTo: Ext.getBody()
     });
+
+    function initialButtonHander() {
+        button.showMenu();
+        button.setText("choose action");
+    }
+
+    function resetToolbar() {
+        tb.hide();
+        tb.removeAll();
+        tb.add({
+            xtype: 'textfield',
+            name: 'Name',
+            emptyText: "user's name"
+        });
+        tb.add({
+            xtype: 'textfield',
+            name: 'Surname',
+            emptyText: "user's surname"
+        });
+        button.setText("Action");
+        button.setHandler(initialButtonHander);
+    };
+
+    
+
+    resetToolbar();
 
     // testing
     //console.log(u);

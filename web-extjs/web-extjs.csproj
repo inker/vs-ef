@@ -19,6 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="ext-all-dev.js" />
+    <Content Include="ext-all.js" />
     <Content Include="index.html" />
     <Content Include="resources\ext-theme-classic-all-debug.css" />
     <Content Include="resources\ext-theme-classic-all-rtl-debug.css" />
