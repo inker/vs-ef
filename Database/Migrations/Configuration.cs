@@ -1,4 +1,4 @@
-namespace Database.Migrations
+namespace DBManager.Migrations
 {
     using System;
     using System.Data.Entity;

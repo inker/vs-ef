@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using System.Collections;
 using DBInt;
 using System.Timers;
-using Database.Models;
+using DBManager.Models;
 
 namespace DbForms
 {

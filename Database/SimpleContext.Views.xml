@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<views MappingHash="d3ddd99ddaf4e4efd6ceb02488a790a4256f0af20163b25358f9f3cd8942267c">
+<views MappingHash="627469cc03c61fbd4348ddeaf23ea1966f54289993f00214c98d03fa53b51ece">
   <view extent="CodeFirstDatabase.Job"><![CDATA[
     SELECT VALUE -- Constructing Job
         [CodeFirstDatabaseSchema.Job](T1.Job_ID, T1.Job_Name)
@@ -59,7 +59,7 @@
     ) AS T4]]></view>
   <view extent="SimpleContext.Jobs"><![CDATA[
     SELECT VALUE -- Constructing Jobs
-        [Database.Job](T1.Job_ID, T1.Job_Name)
+        [DBManager.Job](T1.Job_ID, T1.Job_Name)
     FROM (
         SELECT 
             T.ID AS Job_ID, 
@@ -69,7 +69,7 @@
     ) AS T1]]></view>
   <view extent="SimpleContext.Organisations"><![CDATA[
     SELECT VALUE -- Constructing Organisations
-        [Database.Organisation](T1.Organisation_ID, T1.Organisation_Name)
+        [DBManager.Organisation](T1.Organisation_ID, T1.Organisation_Name)
     FROM (
         SELECT 
             T.ID AS Organisation_ID, 
@@ -79,7 +79,7 @@
     ) AS T1]]></view>
   <view extent="SimpleContext.Users"><![CDATA[
     SELECT VALUE -- Constructing Users
-        [Database.User](T1.User_ID, T1.User_Name, T1.User_Surname, T1.User_OrganisationID)
+        [DBManager.User](T1.User_ID, T1.User_Name, T1.User_Surname, T1.User_OrganisationID)
     FROM (
         SELECT 
             T.ID AS User_ID, 
@@ -91,9 +91,9 @@
     ) AS T1]]></view>
   <view extent="SimpleContext.UserJobs"><![CDATA[
     SELECT VALUE -- Constructing UserJobs
-        [Database.UserJob](T1.UserJob_ID) WITH 
-        RELATIONSHIP(CREATEREF(SimpleContext.Jobs, ROW(T1.[UserJob_Job.UserJob_Job_Target.ID]),[Database.Job]),[Database.UserJob_Job],UserJob_Job_Source,UserJob_Job_Target) 
-        RELATIONSHIP(CREATEREF(SimpleContext.Users, ROW(T1.[UserJob_User.UserJob_User_Target.ID]),[Database.User]),[Database.UserJob_User],UserJob_User_Source,UserJob_User_Target) 
+        [DBManager.UserJob](T1.UserJob_ID) WITH 
+        RELATIONSHIP(CREATEREF(SimpleContext.Jobs, ROW(T1.[UserJob_Job.UserJob_Job_Target.ID]),[DBManager.Job]),[DBManager.UserJob_Job],UserJob_Job_Source,UserJob_Job_Target) 
+        RELATIONSHIP(CREATEREF(SimpleContext.Users, ROW(T1.[UserJob_User.UserJob_User_Target.ID]),[DBManager.User]),[DBManager.UserJob_User],UserJob_User_Source,UserJob_User_Target) 
     FROM (
         SELECT 
             T.ID AS UserJob_ID, 
@@ -104,15 +104,15 @@
     ) AS T1]]></view>
   <view extent="SimpleContext.UserJob_Job"><![CDATA[
     SELECT VALUE -- Constructing UserJob_Job
-        [Database.UserJob_Job](T3.[UserJob_Job.UserJob_Job_Source], T3.[UserJob_Job.UserJob_Job_Target])
+        [DBManager.UserJob_Job](T3.[UserJob_Job.UserJob_Job_Source], T3.[UserJob_Job.UserJob_Job_Target])
     FROM (
         SELECT -- Constructing UserJob_Job_Source
-            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_Job.UserJob_Job_Source.ID]), [Database.UserJob]) AS [UserJob_Job.UserJob_Job_Source], 
+            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_Job.UserJob_Job_Source.ID]), [DBManager.UserJob]) AS [UserJob_Job.UserJob_Job_Source], 
             T2.[UserJob_Job.UserJob_Job_Target]
         FROM (
             SELECT -- Constructing UserJob_Job_Target
                 T1.[UserJob_Job.UserJob_Job_Source.ID], 
-                CreateRef(SimpleContext.Jobs, row(T1.[UserJob_Job.UserJob_Job_Target.ID]), [Database.Job]) AS [UserJob_Job.UserJob_Job_Target]
+                CreateRef(SimpleContext.Jobs, row(T1.[UserJob_Job.UserJob_Job_Target.ID]), [DBManager.Job]) AS [UserJob_Job.UserJob_Job_Target]
             FROM (
                 SELECT 
                     T.ID AS [UserJob_Job.UserJob_Job_Source.ID], 
@@ -125,15 +125,15 @@
     ) AS T3]]></view>
   <view extent="SimpleContext.UserJob_User"><![CDATA[
     SELECT VALUE -- Constructing UserJob_User
-        [Database.UserJob_User](T3.[UserJob_User.UserJob_User_Source], T3.[UserJob_User.UserJob_User_Target])
+        [DBManager.UserJob_User](T3.[UserJob_User.UserJob_User_Source], T3.[UserJob_User.UserJob_User_Target])
     FROM (
         SELECT -- Constructing UserJob_User_Source
-            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_User.UserJob_User_Source.ID]), [Database.UserJob]) AS [UserJob_User.UserJob_User_Source], 
+            CreateRef(SimpleContext.UserJobs, row(T2.[UserJob_User.UserJob_User_Source.ID]), [DBManager.UserJob]) AS [UserJob_User.UserJob_User_Source], 
             T2.[UserJob_User.UserJob_User_Target]
         FROM (
             SELECT -- Constructing UserJob_User_Target
                 T1.[UserJob_User.UserJob_User_Source.ID], 
-                CreateRef(SimpleContext.Users, row(T1.[UserJob_User.UserJob_User_Target.ID]), [Database.User]) AS [UserJob_User.UserJob_User_Target]
+                CreateRef(SimpleContext.Users, row(T1.[UserJob_User.UserJob_User_Target.ID]), [DBManager.User]) AS [UserJob_User.UserJob_User_Target]
             FROM (
                 SELECT 
                     T.ID AS [UserJob_User.UserJob_User_Source.ID], 

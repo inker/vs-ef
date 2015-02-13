@@ -1,5 +1,5 @@
-﻿using Database;
-using Database.Models;
+﻿using DBManager;
+using DBManager.Models;
 using DbForms;
 using System;
 using System.Collections.Generic;
@@ -100,7 +100,7 @@ namespace DBInt
         {
             try
             {
-                using (var ctx = new Database.SimpleContext())
+                using (var ctx = new DBManager.SimpleContext())
                 {
                     //var userJobQuery = ctx.Users
                     //    .Where(u => u.Surname == userSurname)
@@ -139,7 +139,7 @@ namespace DBInt
         {
             try
             {
-                using (var ctx = new Database.SimpleContext())
+                using (var ctx = new DBManager.SimpleContext())
                 {
                     var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
                     if (!userQuery.Any()) throw new Exception("user not found");

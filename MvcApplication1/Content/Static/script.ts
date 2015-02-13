@@ -109,24 +109,24 @@ Ext.onReady(() => {
     Ext.create('Ext.data.Store', {
         model: 'User',
         storeId: 'userStore',
-        data: {
-            'items': [
-
-                { 'ID': 1, 'Name': 'Anton', 'Surname': 'Veselyev', 'OrganisationID': 1 },
-                { 'ID': 2, 'Name': 'Random', 'Surname': 'User', 'OrganisationID': 2 },
-            ]
-        },
-        /*proxy: {
-	        type: 'ajax',
-	        url: 'someurl.json' // later to be changed
-	    }*/
+        //data: {
+        //    'items': [
+        //
+        //        { 'ID': 1, 'Name': 'Anton', 'Surname': 'Veselyev', 'OrganisationID': 1 },
+        //        { 'ID': 2, 'Name': 'Random', 'Surname': 'User', 'OrganisationID': 2 },
+        //    ]
+        //},
         proxy: {
-            type: 'memory',
-            reader: {
-                type: 'json',
-                root: 'items'
-            }
-        }
+	        type: 'ajax',
+            url: '/Users/' // later to be changed
+	    }
+        //proxy: {
+        //    type: 'memory',
+        //    reader: {
+        //        type: 'json',
+        //        root: 'items'
+        //    }
+        //}
     });
 
     Ext.create('Ext.data.Store', {
@@ -173,6 +173,8 @@ Ext.onReady(() => {
     var jobs = Ext.StoreManager.lookup('jobStore');
     var userJobs = Ext.StoreManager.lookup('userJobStore');
     var users = Ext.StoreManager.lookup('userStore');
+    debugger
+    users.load()
     orgs.sync();
     Ext.StoreManager.lookup('userStore').sync();
     orgs.sync();
@@ -230,6 +232,7 @@ Ext.onReady(() => {
         hidden: true,
         vertical: true,
         width: 150,
+        
         renderTo: Ext.getBody()
     });
 
@@ -241,6 +244,7 @@ Ext.onReady(() => {
                 {
                     text: 'Insert user',
                     handler: () => {
+                        resetToolbar();
                         tb.add({
                             id: 'org',
                             xtype: 'textfield',
@@ -251,37 +255,97 @@ Ext.onReady(() => {
                             id: 'addJobButton',
                             xtype: 'button',
                             text: "add job",
-                            handler: () => alert('foo')
+                            handler: () => {
+                                var fieldNumber = tb.items.getCount() - 3;
+                                tb.add({
+                                    id: 'job' + fieldNumber,
+                                    xtype: 'textfield',
+                                    name: 'Job',
+                                    emptyText: 'job #' + fieldNumber
+                                });
+                            }
                         });
                         tb.show();
                         button.setText("Insert user");
                         button.setHandler(() => {
                             // add insertion to db
-                            resetToolbar();
+                            resetToInitialState();
                         });
                     }
                 }, {
                     text: 'Delete user',
                     handler: () => {
+                        resetToolbar();
                         tb.show();
                         button.setText("Delete user");
                         button.setHandler(() => {
                             // add deletion from db
-                            resetToolbar();
+                            resetToInitialState();
                         });
                     }
                 }, {
                     text: 'Add job to user',
                     handler: () => {
-                        alert("job supposed to be added to user");
+                        resetToolbar();
+                        tb.add({
+                            id: 'job',
+                            xtype: 'textfield',
+                            name: 'Job',
+                            emptyText: "job to add"
+                        });
+                        tb.show();
+                        button.setText("Proceed");
+                        button.setHandler(() => {
+                            // add job addition
+                            resetToInitialState();
+                            alert("job supposed to be added to user");
+                        });
+                        
                     }
                 }, {
                     text: 'Remove job from user',
                     handler: () => {
-                        alert("job supposed to be removed from user");
+                        resetToolbar();
+                        tb.add({
+                            id: 'job',
+                            xtype: 'textfield',
+                            name: 'Job',
+                            emptyText: "job to remove"
+                        });
+                        tb.show();
+                        button.setText("Remove job");
+                        button.setHandler(() => {
+                            // add job removal
+                            resetToInitialState();
+                            alert("job supposed to be removed from user");
+                        });
+                        
                     }
                 }
             ]
+        }),
+        renderTo: Ext.getBody()
+    });
+
+    var panel = Ext.create('Ext.panel.Panel', {
+        bodyPadding: 5,  // Don't want content to crunch against the borders
+        title: 'Filters',
+        items: [gridPanel, tb, button],
+        bbar: Ext.create('Ext.ux.StatusBar', {
+            id: 'my-status',
+
+            // defaults to use when the status is cleared:
+            defaultText: 'Default status text',
+            defaultIconCls: 'default-icon',
+
+            // values to set initially:
+            text: 'Ready',
+            iconCls: 'ready-icon',
+
+            // any standard Toolbar items:
+            items: [{
+                text: 'A Button'
+            }, '-', 'Plain Text']
         }),
         renderTo: Ext.getBody()
     });
@@ -304,11 +368,13 @@ Ext.onReady(() => {
             name: 'Surname',
             emptyText: "user's surname"
         });
-        button.setText("Action");
         button.setHandler(initialButtonHander);
     };
 
-    
+    function resetToInitialState() {
+        resetToolbar();
+        button.setText("Action");
+    }
 
     resetToolbar();
 

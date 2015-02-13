@@ -31,7 +31,7 @@ Usage:
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="Microsoft.CSharp" #>
 <# 
-	var configFilePath = GetConfigFilePath();
+	var configFilePath = GetConfigFilePath(); 
 	if (configFilePath != null)
 	{
 		AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configFilePath);
