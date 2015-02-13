@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections;
 using DBManager;
 using System.Timers;
-using DBManager.Models;
 
 namespace DbForms
 {
@@ -23,42 +14,6 @@ namespace DbForms
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// 
-
-    public class UserText
-    {
-        public long ID { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string Organization { get; set; }
-        public string Jobs { get; set; } 
-    }
-
-    //public class UserCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //    public string Surname { get; set; }
-    //    public long OrganisationID { get; set; } 
-    //}
-
-    //public class OrganisationCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //}
-
-    //public class JobCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //}
-
-    //public class UserJobCustom
-    //{
-    //    public long ID { get; set; }
-    //    public long UserID { get; set; }
-    //    public long JobID { get; set; }
-    //}
 
     public partial class MainWindow : Window
     {

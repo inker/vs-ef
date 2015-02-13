@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBInteraction.cs" />
     <Compile Include="Migrations\201502091250227_add field.cs" />
     <Compile Include="Migrations\201502091250227_add field.Designer.cs">
       <DependentUpon>201502091250227_add field.cs</DependentUpon>
@@ -83,6 +84,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>SimpleContext.Views.tt</DependentUpon>
     </Compile>
+    <Compile Include="UserText.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
