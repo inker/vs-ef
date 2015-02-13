@@ -199,9 +199,6 @@
   <ItemGroup>
     <Content Include="Content\Static\ext-all.js" />
     <Content Include="Content\Static\index.html" />
-    <Content Include="Content\Static\resources\ext-theme-classic-all-debug.css" />
-    <Content Include="Content\Static\resources\ext-theme-classic-all-rtl-debug.css" />
-    <Content Include="Content\Static\resources\ext-theme-classic-all-rtl.css" />
     <Content Include="Content\Static\resources\ext-theme-classic-all.css" />
     <Content Include="Content\Static\resources\images\boundlist\trigger-arrow.png" />
     <Content Include="Content\Static\resources\images\box\corners-blue.gif" />

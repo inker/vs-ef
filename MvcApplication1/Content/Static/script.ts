@@ -265,8 +265,10 @@ Ext.onReady(() => {
 
         var button: Ext.button.ISplit = Ext.create('Ext.button.Split', {
             text: 'Action',
+            // on button click
             handler: initialButtonHander,
             menu: Ext.create('Ext.menu.Menu', {
+                // split menu items
                 items: [
                     {
                         text: 'Insert user',
