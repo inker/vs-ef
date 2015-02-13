@@ -314,11 +314,13 @@ Ext.onReady(() => {
                                 }
                                 insertParams['Jobs'] = jobs.join(',');
                                 Ext.Ajax.request({
-                                    url: '/Users/New',
+                                    url: '/Users',
                                     params: insertParams,
-                                    method: 'POST'
+                                    method: 'POST',
+                                    success: (response, options) => users.sync()
                                 });
                                 resetToInitialState();
+
                             });
                         }
                     }, {
@@ -328,7 +330,14 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Delete user");
                             button.setHandler(() => {
-                                // add deletion from db
+                                Ext.Ajax.request({
+                                    url: '/Users',
+                                    params: {
+                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
+                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                    },
+                                    method: 'DELETE'
+                                });
                                 resetToInitialState();
                             });
                         }
@@ -345,9 +354,15 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Proceed");
                             button.setHandler(() => {
-                                // add job addition
+                                Ext.Ajax.request({
+                                    url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to add']")).value,
+                                    params: {
+                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
+                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                    },
+                                    method: 'POST'
+                                });
                                 resetToInitialState();
-                                alert("job supposed to be added to user");
                             });
 
                         }
@@ -364,9 +379,15 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Remove job");
                             button.setHandler(() => {
-                                // add job removal
+                                Ext.Ajax.request({
+                                    url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to remove']")).value,
+                                    params: {
+                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
+                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                    },
+                                    method: 'DELETE'
+                                });
                                 resetToInitialState();
-                                alert("job supposed to be removed from user");
                             });
 
                         }

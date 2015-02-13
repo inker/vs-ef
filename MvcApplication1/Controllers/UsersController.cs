@@ -54,9 +54,32 @@ namespace MvcApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult New(string Name, string Surname, string Organisation, string Jobs)
+        public ActionResult All(string Name, string Surname, string Organisation, string Jobs)
         {
             DBInteraction.InsertUser(Name, Surname, Organisation, Jobs.Split(','));
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpDelete]
+        public ActionResult All(string Name, string Surname)
+        {
+            DBInteraction.RemoveUser(Name, Surname);
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpPost]
+        [ActionName("Jobs")]
+        public ActionResult AddJob(string id, string Name, string Surname)
+        {
+            DBInteraction.AddJobToUser(Name, Surname, id);
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpDelete]
+        [ActionName("Jobs")]
+        public ActionResult RemoveJob(string id, string Name, string Surname)
+        {
+            DBInteraction.RemoveJobFromUser(Name, Surname, id);
             return new HttpStatusCodeResult(200);
         }
 
