@@ -301,6 +301,7 @@ Ext.onReady(() => {
                             button.setText("Insert user");
 
                             button.setHandler(() => {
+                                gridPanel.setLoading(); // as if the view is updating
                                 var insertParams = {
                                     Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
                                     Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value,
@@ -319,7 +320,6 @@ Ext.onReady(() => {
                                     success: (response, options) => users.load({ callback: () => users.sync() })
                                 });
                                 resetToInitialState();
-
                             });
                         }
                     }, {
@@ -329,6 +329,7 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Delete user");
                             button.setHandler(() => {
+                                gridPanel.setLoading();
                                 Ext.Ajax.request({
                                     url: '/Users',
                                     params: {
@@ -355,6 +356,7 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Proceed");
                             button.setHandler(() => {
+                                gridPanel.setLoading();
                                 Ext.Ajax.request({
                                     url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to add']")).value,
                                     params: {
@@ -391,6 +393,7 @@ Ext.onReady(() => {
                             tb.show();
                             button.setText("Remove job");
                             button.setHandler(() => {
+                                gridPanel.setLoading();
                                 Ext.Ajax.request({
                                     url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to remove']")).value,
                                     params: {
