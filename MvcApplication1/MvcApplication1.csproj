@@ -784,6 +784,10 @@
       <Project>{95c54339-d775-4ffd-919d-7e7126a6ddf9}</Project>
       <Name>Database</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DBForms\DBForms.csproj">
+      <Project>{5af3c34d-2a15-4f83-9213-1662135294f1}</Project>
+      <Name>DBForms</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

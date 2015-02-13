@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DBInt
+namespace DBManager
 {
-    class DBInteraction
+    public class DBInteraction
     {
         public static void InsertUser(string userName, string userSurname, string organizationName, string[] jobNames)
         {
@@ -183,51 +183,60 @@ namespace DBInt
             }
         }
 
-        public static Dictionary<User, List<Job>> GetAllUsers()
-        {
-            using (var ctx = new SimpleContext())
-            {
-                var usersQuery = ctx.Users
-                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
-                if (usersQuery.Any())
-                {
-                    var dict = new Dictionary<User, List<Job>>();
-                    foreach (var user in usersQuery)
-                    {
-                        dict.Add(user.u, user.uj.Select(uj => uj.Job).ToList());
-                    }
-                    return dict;
-                }
-                ctx.SaveChanges();
-                return null;
-            }
-        }
+        //public static List<UserCustom> GetAllUsers()
+        //{
+        //    using (var ctx = new SimpleContext())
+        //    {
+        //        var usersQuery = ctx.Users
+        //            .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) });
+        //        var userJobs = usersQuery.ToList();
+        //        if (usersQuery.Any())
+        //        {
+        //            var objs = new List<UserText>();
+        //            foreach (var userJob in userJobs)
+        //            {
+        //                objs.Add(new UserText
+        //                {
+        //                    ID = userJob.User.ID,
+        //                    Name = userJob.User.Name,
+        //                    Surname = userJob.User.Surname,
+        //                    Organization = userJob.User.Organisation.Name,
+        //                    Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
+        //                });
+        //            }
+        //            return objs;
+        //        }
+        //        ctx.SaveChanges();
+        //        return null;
+        //    }
+        //}
 
-        public async static Task<List<DataObject>> GetAllUsersTextAsync()
+        public async static Task<List<UserText>> GetAllUsersTextAsync()
         {
-            var task = await Task<List<DataObject>>.Factory.StartNew(() => GetAllUsersText());
+            var task = await Task<List<UserText>>.Factory.StartNew(() => GetAllUsersText());
             return task;
             //var task = await Task<List<DataObject>>(() => GetAllUsersText());
         }
 
-        public static List<DataObject> GetAllUsersText()
+        public static List<UserText> GetAllUsersText()
         {
             using (var ctx = new SimpleContext())
             {
                 var usersQuery = ctx.Users
-                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { u, uj });
-                var users = usersQuery.ToList();
+                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) });
+                var userJobs = usersQuery.ToList();
                 if (usersQuery.Any())
                 {
-                    var objs = new List<DataObject>();
-                    foreach (var user in users)
+                    var objs = new List<UserText>();
+                    foreach (var userJob in userJobs)
                     {
-                        objs.Add(new DataObject
+                        objs.Add(new UserText
                         {
-                            Name = user.u.Name,
-                            Surname = user.u.Surname,
-                            Organization = user.u.Organisation.Name,
-                            Jobs = string.Join(", ", user.uj.Select(uj => uj.Job.Name))
+                            ID = userJob.User.ID,
+                            Name = userJob.User.Name,
+                            Surname = userJob.User.Surname,
+                            Organization = userJob.User.Organisation.Name,
+                            Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
                         });
                     }
                     return objs;

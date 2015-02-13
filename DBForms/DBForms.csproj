@@ -107,10 +107,6 @@
       <Project>{95c54339-d775-4ffd-919d-7e7126a6ddf9}</Project>
       <Name>Database</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MvcApplication1\MvcApplication1.csproj">
-      <Project>{19697921-db41-4b00-a3ca-608ac0a02370}</Project>
-      <Name>MvcApplication1</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

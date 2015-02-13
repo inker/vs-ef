@@ -13,17 +13,25 @@ namespace MvcApplication1
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            //routes.MapRoute(
-            //    name: "Default",
-            //    url: "Users",
-            //    defaults: new { controller = "Users", action = "GetUsers", id = UrlParameter.Optional }
-            //);
+            routes.MapRoute(
+                name: "Index",
+                url: "",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "All",
+                url: "{controller}",
+                defaults: new { controller = "Home", action = "All" }
+            );
 
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+
+
         }
     }
 }

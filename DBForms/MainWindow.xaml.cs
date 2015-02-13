@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections;
-using DBInt;
+using DBManager;
 using System.Timers;
 using DBManager.Models;
 
@@ -24,13 +24,41 @@ namespace DbForms
     /// </summary>
     /// 
 
-    public class DataObject
+    public class UserText
     {
+        public long ID { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Organization { get; set; }
         public string Jobs { get; set; } 
     }
+
+    //public class UserCustom
+    //{
+    //    public long ID { get; set; }
+    //    public string Name { get; set; }
+    //    public string Surname { get; set; }
+    //    public long OrganisationID { get; set; } 
+    //}
+
+    //public class OrganisationCustom
+    //{
+    //    public long ID { get; set; }
+    //    public string Name { get; set; }
+    //}
+
+    //public class JobCustom
+    //{
+    //    public long ID { get; set; }
+    //    public string Name { get; set; }
+    //}
+
+    //public class UserJobCustom
+    //{
+    //    public long ID { get; set; }
+    //    public long UserID { get; set; }
+    //    public long JobID { get; set; }
+    //}
 
     public partial class MainWindow : Window
     {
@@ -138,14 +166,14 @@ namespace DbForms
                 case "Show all users":
                     var task = DBInteraction.GetAllUsersTextAsync();
                     StatusText.Text = "fetching users";
-                    List<DataObject> users = null;
+                    List<UserText> users = null;
                     var timer = new Timer(500);
                     timer.Elapsed += (s, ev) => this.Dispatcher.Invoke((Action)(() => StatusText.Text = StatusText.Text + "."));
                     timer.Start();
                     users = await task;
                     timer.Stop();
                     StatusText.Text = "users found: " + users.Count;
-                    var list = new List<DataObject>();
+                    var list = new List<UserText>();
                     foreach (var u in users)
                     {
                         list.Add(u);
