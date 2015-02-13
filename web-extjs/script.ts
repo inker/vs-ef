@@ -1,6 +1,6 @@
 /// <reference path="./ExtJS.d.ts"/>
 
-Ext.onReady(function () {
+Ext.onReady(() => {
 
     Ext.define('User', {
         extend: 'Ext.data.Model',
@@ -226,7 +226,23 @@ Ext.onReady(function () {
 	    renderTo: Ext.getBody()
     });
 
-    var tb: Ext.toolbar.IToolbar;
+    var tb: Ext.toolbar.IToolbar = Ext.create('Ext.toolbar.Toolbar', {
+        hidden: true,
+        vertical: true,
+        width: 150,
+        items: [
+            {
+                xtype: 'textfield',
+                name: 'Name',
+                emptyText: "user's name"
+            }, {
+                xtype: 'textfield',
+                name: 'Surname',
+                emptyText: "user's surname"
+            }
+        ],
+        renderTo: Ext.getBody()
+    });
 
     function initialButtonHander() {
         button.showMenu();
@@ -241,29 +257,24 @@ Ext.onReady(function () {
                 {
                     text: 'Insert user',
                     handler: () => {
-                        tb = Ext.create('Ext.toolbar.Toolbar', {
-                            vertical: true,
-                            width: 150,
-                            items: [
-                                {
-                                    xtype: 'textfield',
-                                    name: 'Name',
-                                    emptyText: "user's name"
-                                }, {
-                                    xtype: 'textfield',
-                                    name: 'Surname',
-                                    emptyText: "user's surname"
-                                }, {
-                                    xtype: 'textfield',
-                                    name: 'Organisation',
-                                    emptyText: "user's organization"
-                                }
-                            ],
-                            renderTo: Ext.getBody()
+                        tb.add({
+                            id: 'org',
+                            xtype: 'textfield',
+                            name: 'Organisation',
+                            emptyText: "user's organization"
                         });
+                        tb.add({
+                            id: 'addJobButton',
+                            xtype: 'button',
+                            text: "add job",
+                            handler: () => alert('foo')
+                        });
+                        tb.show();
                         button.setText("Submit");
                         button.setHandler(() => {
-                            tb.destroy();
+                            tb.hide();
+                            tb.remove('org');
+                            tb.remove('addJobButton');
                             button.setText("Action");
                             button.setHandler(initialButtonHander);
                         });
@@ -271,7 +282,12 @@ Ext.onReady(function () {
                 }, {
                     text: 'Delete user',
                     handler: () => {
-                        alert("used supposed to be deleted");
+                        tb.show();
+                        button.setHandler(() => {
+                            tb.hide();
+                            button.setText("Action");
+                            button.setHandler(initialButtonHander);
+                        });
                     }
                 }, {
                     text: 'Add job to user',
