@@ -189,10 +189,10 @@ Ext.onReady(() => {
     var jobs = Ext.StoreManager.lookup('jobStore');
     var userJobs = Ext.StoreManager.lookup('userJobStore');
     var users = Ext.StoreManager.lookup('userStore');
-    users.sync();
-    orgs.sync();
-    jobs.sync();
-    userJobs.sync();
+    //users.sync();
+    //orgs.sync();
+    //jobs.sync();
+    //userJobs.sync();
     console.log(orgs);
     //orgs.sync();
     //Ext.StoreManager.lookup('userStore').sync();
@@ -318,11 +318,10 @@ Ext.onReady(() => {
                                     url: '/Users',
                                     params: insertParams,
                                     method: 'POST',
+                                    timeout: 30000,
                                     //success: (response, options) => users.load({ callback: () => users.sync() })
-                                    success: (response, options) => {
-                                        syncStores();
-                                        gridPanel.setLoading(false);
-                                    }
+                                    success: onAjaxSuccess,
+                                    failure: onAjaxFail
                                 });
                                 resetToInitialState();
                             });
@@ -342,11 +341,10 @@ Ext.onReady(() => {
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
                                     method: 'DELETE',
+                                    timeout: 30000,
                                     //success: (response, options) => users.load({ callback: () => users.sync() })
-                                    success: (response, options) => {
-                                        syncStores();
-                                        gridPanel.setLoading(false);
-                                    }
+                                    success: onAjaxSuccess,
+                                    failure: onAjaxFail
                                 });
                                 resetToInitialState();
                             });
@@ -372,10 +370,9 @@ Ext.onReady(() => {
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
                                     method: 'POST',
-                                    success: (response, options) => {
-                                        syncStores();
-                                        gridPanel.setLoading(false);
-                                    }
+                                    timeout: 30000,
+                                    success: onAjaxSuccess,
+                                    failure: onAjaxFail
                                 });
                                 resetToInitialState();
                             });
@@ -402,10 +399,9 @@ Ext.onReady(() => {
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
                                     method: 'DELETE',
-                                    success: (response, options) => {
-                                        syncStores();
-                                        gridPanel.setLoading(false);
-                                    }
+                                    timeout: 30000,
+                                    success: onAjaxSuccess,
+                                    failure: onAjaxFail
                                 });
                                 resetToInitialState();
                             });
@@ -470,6 +466,16 @@ Ext.onReady(() => {
         function resetToInitialState() {
             resetToolbarAndButton();
             button.setText("Action");
+        }
+
+        function onAjaxSuccess(response, options) {
+            syncStores();
+            gridPanel.setLoading(false);
+        }
+
+        function onAjaxFail(response, options) {
+            alert("couldn't submit the AJAX request");
+            gridPanel.setLoading(false);
         }
 
         function syncStores() {
