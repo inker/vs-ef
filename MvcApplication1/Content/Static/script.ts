@@ -259,7 +259,6 @@ Ext.onReady(() => {
             hidden: true,
             vertical: true,
             width: 150,
-
             renderTo: Ext.getBody()
         });
 
@@ -273,7 +272,7 @@ Ext.onReady(() => {
                     {
                         text: 'Insert user',
                         handler: () => {
-                            resetToolbar();
+                            resetToolbarAndButton();
                             tb.add({
                                 id: 'org',
                                 xtype: 'textfield',
@@ -321,14 +320,7 @@ Ext.onReady(() => {
                                     method: 'POST',
                                     //success: (response, options) => users.load({ callback: () => users.sync() })
                                     success: (response, options) => {
-                                        Ext.data.StoreManager.each(store => {
-                                            store.load({
-                                                callback: () => {
-                                                    store.sync();
-                                                    gridPanel.getView().refresh();
-                                                }
-                                            });
-                                        });
+                                        syncStores();
                                         gridPanel.setLoading(false);
                                     }
                                 });
@@ -338,7 +330,7 @@ Ext.onReady(() => {
                     }, {
                         text: 'Delete user',
                         handler: () => {
-                            resetToolbar();
+                            resetToolbarAndButton();
                             tb.show();
                             button.setText("Delete user");
                             button.setHandler(() => {
@@ -352,14 +344,7 @@ Ext.onReady(() => {
                                     method: 'DELETE',
                                     //success: (response, options) => users.load({ callback: () => users.sync() })
                                     success: (response, options) => {
-                                        Ext.data.StoreManager.each(store => {
-                                            store.load({
-                                                callback: () => {
-                                                    store.sync();
-                                                    gridPanel.getView().refresh();
-                                                }
-                                            });
-                                        });
+                                        syncStores();
                                         gridPanel.setLoading(false);
                                     }
                                 });
@@ -369,7 +354,7 @@ Ext.onReady(() => {
                     }, {
                         text: 'Add job to user',
                         handler: () => {
-                            resetToolbar();
+                            resetToolbarAndButton();
                             tb.add({
                                 id: 'job',
                                 xtype: 'textfield',
@@ -388,14 +373,7 @@ Ext.onReady(() => {
                                     },
                                     method: 'POST',
                                     success: (response, options) => {
-                                        Ext.data.StoreManager.each(store => {
-                                            store.load({
-                                                callback: () => {
-                                                    store.sync();
-                                                    gridPanel.getView().refresh();
-                                                }
-                                            });
-                                        });
+                                        syncStores();
                                         gridPanel.setLoading(false);
                                     }
                                 });
@@ -406,7 +384,7 @@ Ext.onReady(() => {
                     }, {
                         text: 'Remove job from user',
                         handler: () => {
-                            resetToolbar();
+                            resetToolbarAndButton();
                             tb.add({
                                 id: 'job',
                                 xtype: 'textfield',
@@ -425,14 +403,7 @@ Ext.onReady(() => {
                                     },
                                     method: 'DELETE',
                                     success: (response, options) => {
-                                        Ext.data.StoreManager.each(store => {
-                                            store.load({
-                                                callback: () => {
-                                                    store.sync();
-                                                    gridPanel.getView().refresh();
-                                                }
-                                            });
-                                        });
+                                        syncStores();
                                         gridPanel.setLoading(false);
                                     }
                                 });
@@ -445,6 +416,8 @@ Ext.onReady(() => {
             }),
             renderTo: Ext.getBody()
         });
+
+        resetToolbarAndButton();
 
         var panel = Ext.create('Ext.panel.Panel', {
             bodyPadding: 5,  // Don't want content to crunch against the borders
@@ -474,7 +447,7 @@ Ext.onReady(() => {
             button.setText("choose action");
         }
 
-       function resetToolbar() {
+       function resetToolbarAndButton() {
             tb.hide();
             tb.removeAll();
             tb.add({
@@ -492,12 +465,23 @@ Ext.onReady(() => {
             button.setHandler(initialButtonHander);
         };
 
+        resetToolbarAndButton();
+
         function resetToInitialState() {
-            resetToolbar();
+            resetToolbarAndButton();
             button.setText("Action");
         }
 
-        resetToolbar();
+        function syncStores() {
+            Ext.data.StoreManager.each((store: Ext.data.IStore) => {
+                store.load({
+                    callback: () => {
+                        store.sync();
+                        gridPanel.getView().refresh();
+                    }
+                });
+            });
+        }    
     }
 
     // testing
