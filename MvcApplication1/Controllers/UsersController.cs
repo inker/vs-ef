@@ -10,7 +10,7 @@ namespace MvcApplication1.Controllers
     public class UsersController : Controller
     {
         [HttpGet]
-        public ActionResult Common()
+        public ActionResult Index()
         {
             using (var ctx = new SimpleContext())
             {
@@ -54,24 +54,47 @@ namespace MvcApplication1.Controllers
         }
 
         [HttpPost]
-        public ActionResult Common(string Name, string Surname, string Organisation, string Jobs)
+        [ActionName("Index")]
+        public ActionResult InsertUser(string Name, string Surname, string Organisation, string Jobs)
         {
-            DBInteraction.InsertUser(Name, Surname, Organisation, Jobs.Split(','));
+            var jobArr = (string.IsNullOrWhiteSpace(Jobs)) ? new string[]{} : Jobs.Split(',').Where(job => job.Length > 0).ToArray();
+            DBInteraction.InsertUser(Name, Surname, Organisation, jobArr);
             return new HttpStatusCodeResult(200);
         }
 
         [HttpDelete]
-        public ActionResult Common(string Name, string Surname)
+        [ActionName("Index")]
+        public ActionResult DeleteUser(string Name, string Surname)
         {
             DBInteraction.RemoveUser(Name, Surname);
             return new HttpStatusCodeResult(200);
         }
 
+        /*
+        public ActionResult Index(string Name, string Surname, string Organisation, string Jobs)
+        {
+            if (Request.HttpMethod == "POST")
+            {
+                DBInteraction.InsertUser(Name, Surname, Organisation, Jobs.Split(','));
+                return new HttpStatusCodeResult(200);
+            }
+            else if (Request.HttpMethod == "DELETE")
+            {
+                DBInteraction.RemoveUser(Name, Surname);
+                return new HttpStatusCodeResult(200);
+            }
+            return new HttpStatusCodeResult(404);
+        }
+        */
+
         [HttpPost]
         [ActionName("Jobs")]
         public ActionResult AddJob(string id, string Name, string Surname)
         {
-            DBInteraction.AddJobToUser(Name, Surname, id);
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                DBInteraction.AddJobToUser(Name, Surname, id);
+            }
             return new HttpStatusCodeResult(200);
         }
 
@@ -82,6 +105,8 @@ namespace MvcApplication1.Controllers
             DBInteraction.RemoveJobFromUser(Name, Surname, id);
             return new HttpStatusCodeResult(200);
         }
+
+        // for testing purposes
 
         [HttpGet]
         [ActionName("fool")]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MvcApplication1.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,17 +13,19 @@ namespace MvcApplication1
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            routes.AppendTrailingSlash = true;
+            //routes.RouteExistingFiles = false;
 
             routes.MapRoute(
-                name: "Index",
-                url: "",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                name: "Users",
+                url: "Users/{action}/{id}",
+                defaults: new { controller = "Users", action = "Index", id = UrlParameter.Optional }
             );
 
-            routes.MapRoute(
-                name: "All",
-                url: "{controller}",
-                defaults: new { controller = "Home", action = "Common" }
+            var rt = routes.MapRoute(
+                name: "Static",
+                url: "{*file}",
+                defaults: new { controller = "Home", action = "Static", file = UrlParameter.Optional }
             );
 
             routes.MapRoute(
@@ -30,7 +33,6 @@ namespace MvcApplication1
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
-
 
         }
     }

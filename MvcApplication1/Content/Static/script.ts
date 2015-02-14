@@ -319,7 +319,18 @@ Ext.onReady(() => {
                                     url: '/Users',
                                     params: insertParams,
                                     method: 'POST',
-                                    success: (response, options) => users.load({ callback: () => users.sync() })
+                                    //success: (response, options) => users.load({ callback: () => users.sync() })
+                                    success: (response, options) => {
+                                        Ext.data.StoreManager.each(store => {
+                                            store.load({
+                                                callback: () => {
+                                                    store.sync();
+                                                    gridPanel.getView().refresh();
+                                                }
+                                            });
+                                        });
+                                        gridPanel.setLoading(false);
+                                    }
                                 });
                                 resetToInitialState();
                             });
@@ -339,8 +350,18 @@ Ext.onReady(() => {
                                         Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
                                     },
                                     method: 'DELETE',
-                                    success: (response, options) => users.load({ callback: () => users.sync() })
-
+                                    //success: (response, options) => users.load({ callback: () => users.sync() })
+                                    success: (response, options) => {
+                                        Ext.data.StoreManager.each(store => {
+                                            store.load({
+                                                callback: () => {
+                                                    store.sync();
+                                                    gridPanel.getView().refresh();
+                                                }
+                                            });
+                                        });
+                                        gridPanel.setLoading(false);
+                                    }
                                 });
                                 resetToInitialState();
                             });
@@ -375,7 +396,7 @@ Ext.onReady(() => {
                                                 }
                                             });
                                         });
-                                        
+                                        gridPanel.setLoading(false);
                                     }
                                 });
                                 resetToInitialState();
@@ -412,7 +433,7 @@ Ext.onReady(() => {
                                                 }
                                             });
                                         });
-
+                                        gridPanel.setLoading(false);
                                     }
                                 });
                                 resetToInitialState();
