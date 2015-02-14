@@ -87,7 +87,7 @@ Ext.onReady(() => {
 
 
 
-    Ext.create('Ext.data.Store', {
+    var orgs: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'Organisation',
         storeId: 'organisationStore',
         //data: {
@@ -111,7 +111,7 @@ Ext.onReady(() => {
         autoLoad: { callback: checkLoading }
     });
 
-    Ext.create('Ext.data.Store', {
+    var users: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'User',
         storeId: 'userStore',
         //data: {
@@ -135,7 +135,7 @@ Ext.onReady(() => {
         //}
     });
 
-    Ext.create('Ext.data.Store', {
+    var jobs: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'Job',
         storeId: 'jobStore',
         //data: {
@@ -159,7 +159,7 @@ Ext.onReady(() => {
         autoLoad: { callback: checkLoading }
     });
 
-    Ext.create('Ext.data.Store', <Ext.data.IStore> {
+    var userJobs: Ext.data.IStore = Ext.create('Ext.data.Store', <Ext.data.IStore> {
         model: 'UserJob',
         storeId: 'userJobStore',
         //data: {
@@ -185,18 +185,7 @@ Ext.onReady(() => {
 
     //Ext.StoreManager.lookup('organisationStore').load();
 
-    var orgs = Ext.StoreManager.lookup('organisationStore');
-    var jobs = Ext.StoreManager.lookup('jobStore');
-    var userJobs = Ext.StoreManager.lookup('userJobStore');
-    var users = Ext.StoreManager.lookup('userStore');
-    //users.sync();
-    //orgs.sync();
-    //jobs.sync();
-    //userJobs.sync();
     console.log(orgs);
-    //orgs.sync();
-    //Ext.StoreManager.lookup('userStore').sync();
-    //orgs.sync();
 
     function getOrgName(value, metadata, record, rowIndex, colIndex, store, view) {
         return orgs.getById(record.get('OrganisationID')).get('Name');
