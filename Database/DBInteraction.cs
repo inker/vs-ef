@@ -14,70 +14,41 @@ namespace DBManager
         {
             try
             {
-                using (var context = new SimpleContext())
+                using (var ctx = new SimpleContext())
                 {
-                    var orgQuery = context.Organisations.Where(o => o.Name == organizationName);
-                    var orgs = orgQuery.ToList();
-                    Organisation org;
-                    if (orgs.Any())
+                    var org = ctx.Organisations.SingleOrDefault(o => o.Name == organizationName);
+                    if (org == null)
                     {
-                        org = orgs.ElementAt(0);
+                        org = new Organisation { Name = organizationName };
+                        ctx.Organisations.Add(org);
                     }
-                    else
-                    {
-                        org = new Organisation
-                        {
-                            Name = organizationName
-                        };
-                        context.Organisations.Add(org);
-
-                    }
-                    var usersQuery = context.Users.Where(user => user.Name == userName && user.Surname == userSurname);
-                    var users = usersQuery.ToList();
-                    User usr;
-                    if (users.Any())
+                    var usr = ctx.Users.SingleOrDefault(user => user.Name == userName && user.Surname == userSurname);
+                    if (usr != null)
                     {
                         throw new Exception("user already exists");
                     }
-                    else
-                    {
-                        usr = new User
-                        {
-                            Name = userName,
-                            Organisation = org,
-                            Surname = userSurname
-                        };
-                        context.Users.Add(usr);
-                    }
+                    usr = new User { Name = userName, Organisation = org, Surname = userSurname };
+                    // not necessary to add the user as it is later implicitly added via UserJob addition (below)
+                    //context.Users.Add(usr);
 
-                    var jobsQuery = context.Jobs.Where(job => jobNames.Contains(job.Name));
-
-                    var jobs = jobsQuery.ToList();
+                    var jobs = ctx.Jobs.Where(job => jobNames.Contains(job.Name)).ToList();
                     Console.WriteLine("found jobs: " + jobs.Count);
-                    foreach (var j in jobNames)
+
+                    foreach (var jobName in jobNames)
                     {
-                        if (!jobs.Exists(e => e.Name == j))
+                        if (!jobs.Exists(e => e.Name == jobName))
                         {
-                            var job = new Job();
-                            job.Name = j;
-                            //context.Jobs.Add(job);
-                            jobs.Add(job);
+                            jobs.Add(new Job { Name = jobName });
                         }
                     }
+
                     foreach (var j in jobs)
                     {
-                        var userJob = new UserJob
-                        {
-                            User = usr,
-                            Job = j
-                        };
-                        context.UserJobs.Add(userJob);
+                        var userJob = new UserJob { User = usr, Job = j };
+                        ctx.UserJobs.Add(userJob);
                     }
 
-
-                    context.SaveChanges();
-
-
+                    ctx.SaveChanges();
                 }
             }
             catch (Exception e)
@@ -104,27 +75,17 @@ namespace DBManager
                     //var userJobQuery = ctx.Users
                     //    .Where(u => u.Surname == userSurname)
                     //    .Join(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new {u, uj});
-                    var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
-                    if (!userQuery.Any()) throw new Exception("user not found");
-                    var user = userQuery.First();
-                    var jobQuery = ctx.Jobs.Where(j => j.Name == jobName);
-                    Job job;
-                    if (jobQuery.Any())
+                    var users = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName).ToList();
+                    if (!users.Any()) throw new Exception("user not found");
+                    var user = users.First();
+                    var job = ctx.Jobs.SingleOrDefault(j => j.Name == jobName);
+                    if (job == null)
                     {
-                        job = jobQuery.First();
-                    } else 
-                    {
-                        job = new Job
-                        {
-                            Name = jobName
-                        };
-                        ctx.Jobs.Add(job);
+                        job = new Job { Name = jobName };
+                        // not necessary
+                        //ctx.Jobs.Add(job); 
                     }
-                    var userJob = new UserJob
-                    {
-                        User = user,
-                        Job = job
-                    };
+                    var userJob = new UserJob { User = user, Job = job };
                     ctx.UserJobs.Add(userJob);
                     ctx.SaveChanges();
                 }
@@ -164,16 +125,16 @@ namespace DBManager
             {
                 using (var ctx = new SimpleContext())
                 {
-                    //var userQuery = ctx.Users.Where(u => u.Surname == userSurname && u.Name == userName);
-                    //if (!userQuery.Any()) throw new Exception("user not found");
                     var user = ctx.Users.SingleOrDefault(u => u.Name == userName && u.Surname == userSurname);
-                    if (user != null)
+                    if (user == null)
+                    {
+                        throw new Exception("user not found");
+                    }
+                    else
                     {
                         ctx.Users.Remove(user);
                         ctx.SaveChanges();
-                    }
-                    //ctx.Entry(user).State = System.Data.Entity.EntityState.Deleted;
-                    
+                    }                    
                 }
             }
             catch (Exception e)

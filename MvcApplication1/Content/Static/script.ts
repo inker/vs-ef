@@ -338,62 +338,10 @@ Ext.onReady(() => {
                         }
                     }, {
                         text: 'Add job to user',
-                        handler: () => {
-                            resetToolbarAndButton();
-                            tb.add({
-                                id: 'jobField',
-                                xtype: 'textfield',
-                                name: 'Job',
-                                emptyText: "job to add"
-                            });
-                            tb.show();
-                            button.setText("Proceed");
-                            button.setHandler(() => {
-                                gridPanel.setLoading();
-                                Ext.Ajax.request({
-                                    url: '/Users/Jobs/' + getInputValueById('jobField'),
-                                    params: {
-                                        Name: getInputValueById('nameField'),
-                                        Surname: getInputValueById('surnameField')
-                                    },
-                                    method: 'POST',
-                                    timeout: 30000,
-                                    success: onAjaxSuccess,
-                                    failure: onAjaxFail
-                                });
-                                resetToInitialState();
-                            });
-
-                        }
+                        handler: () => jobOperationButtonHandler('add')
                     }, {
                         text: 'Remove job from user',
-                        handler: () => {
-                            resetToolbarAndButton();
-                            tb.add({
-                                id: 'jobField',
-                                xtype: 'textfield',
-                                name: 'Job',
-                                emptyText: "job to remove"
-                            });
-                            tb.show();
-                            button.setText("Remove job");
-                            button.setHandler(() => {
-                                gridPanel.setLoading();
-                                Ext.Ajax.request({
-                                    url: '/Users/Jobs/' + getInputValueById('jobField'),
-                                    params: {
-                                        Name: getInputValueById('nameField'),
-                                        Surname: getInputValueById('surnameField')
-                                    },
-                                    method: 'DELETE',
-                                    timeout: 30000,
-                                    success: onAjaxSuccess,
-                                    failure: onAjaxFail
-                                });
-                                resetToInitialState();
-                            });
-
-                        }
+                        handler: () => jobOperationButtonHandler('remove')
                     }
                 ]
             }),
@@ -432,13 +380,43 @@ Ext.onReady(() => {
         }
 
         function getInputValueById(id: string) {
-            
             var table = <HTMLTableElement>Ext.get(id).dom;
             table = <HTMLTableElement>table.tBodies[0];
             var row = <HTMLTableRowElement>table.rows[0];
             var cell = <HTMLTableCellElement>row.cells[1];
             var input = <HTMLInputElement>cell.children[0];
             return input.value;
+        }
+
+        function jobOperationButtonHandler(action: string) {
+            var add: boolean;
+            if (action == 'add') add = true;
+            else if (action == 'remove') add = false;
+            else return;
+            resetToolbarAndButton();
+            tb.add({
+                id: 'jobField',
+                xtype: 'textfield',
+                name: 'Job',
+                emptyText: 'job to ' + action
+            });
+            tb.show();
+            button.setText(add ? 'Proceed' : 'Remove job');
+            button.setHandler(() => {
+                gridPanel.setLoading();
+                Ext.Ajax.request({
+                    url: '/Users/Jobs/' + getInputValueById('jobField'),
+                    params: {
+                        Name: getInputValueById('nameField'),
+                        Surname: getInputValueById('surnameField')
+                    },
+                    method: add ? 'POST' : 'DELETE',
+                    timeout: 30000,
+                    success: onAjaxSuccess,
+                    failure: onAjaxFail
+                });
+                resetToInitialState();
+            });
         }
 
         function onAjaxSuccess(response, options) {
