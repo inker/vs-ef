@@ -143,34 +143,6 @@ namespace DBManager
             }
         }
 
-        //public static List<UserCustom> GetAllUsers()
-        //{
-        //    using (var ctx = new SimpleContext())
-        //    {
-        //        var usersQuery = ctx.Users
-        //            .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) });
-        //        var userJobs = usersQuery.ToList();
-        //        if (usersQuery.Any())
-        //        {
-        //            var objs = new List<UserText>();
-        //            foreach (var userJob in userJobs)
-        //            {
-        //                objs.Add(new UserText
-        //                {
-        //                    ID = userJob.User.ID,
-        //                    Name = userJob.User.Name,
-        //                    Surname = userJob.User.Surname,
-        //                    Organization = userJob.User.Organisation.Name,
-        //                    Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
-        //                });
-        //            }
-        //            return objs;
-        //        }
-        //        ctx.SaveChanges();
-        //        return null;
-        //    }
-        //}
-
         public static List<UserCustom> GetAllUsersRaw()
         {
             using (var ctx = new SimpleContext())
@@ -213,26 +185,23 @@ namespace DBManager
         public static List<UserText> GetAllUsersText()
         {
             using (var ctx = new SimpleContext())
-            { 
-                var usersQuery = ctx.Users
-                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) });
-                var userJobs = usersQuery.ToList();
-                if (usersQuery.Any())
-                {
-                    return userJobs.Select(userJob => new UserText
+            {
+                return ctx.Users
+                    .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) })
+                    .ToList()
+                    .Select(userJob => new UserText
                     {
                         ID = userJob.User.ID,
                         Name = userJob.User.Name,
                         Surname = userJob.User.Surname,
                         Organization = userJob.User.Organisation.Name,
                         Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
-                    }).ToList();
-                }
-                return new List<UserText>();
+                    })
+                    .ToList();
             }
         }
 
-        public static void insertUserConsole()
+        public static void InsertUserConsole()
         {
             Console.WriteLine("enter the user's name:");
             var name = Console.ReadLine();
@@ -242,21 +211,15 @@ namespace DBManager
             var org = Console.ReadLine();
             Console.WriteLine("enter the user's jobs:");
             var jobs = new LinkedList<string>();
-            while (true)
+            string job;
+            while ((job = Console.ReadLine()) != string.Empty)
             {
-                var job = Console.ReadLine();
-                if (job == "") break;
                 jobs.AddLast(job);
             }
             Console.Write("jobs: ");
-            foreach (var j in jobs)
-            {
-                Console.Write(j + ", ");
-            }
+            foreach (var j in jobs) Console.Write(j + ", ");
             InsertUser(name, surname, org, jobs.ToArray());
         }
-
-        public static UserJob u { get; set; }
     }
 }
 
