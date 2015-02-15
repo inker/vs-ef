@@ -121,8 +121,8 @@ Ext.onReady(() => {
         //        { 'ID': 2, 'Name': 'Random', 'Surname': 'User', 'OrganisationID': 2 },
         //    ]
         //},
-        proxy: {
-	        type: 'ajax',
+        proxy: { 
+	        type: 'ajax', 
             url: '/Users'
         },
         autoLoad: { callback: checkLoading }
