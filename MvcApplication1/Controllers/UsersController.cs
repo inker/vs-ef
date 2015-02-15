@@ -10,14 +10,11 @@ namespace MvcApplication1.Controllers
     public class UsersController : Controller
     {
         [HttpGet]
-        public ActionResult Index()
+        [ActionName("Index")]
+        public ActionResult GetAllUsers()
         {
             var users = DBInteraction.GetAllUsersRaw();
             return Json(users, JsonRequestBehavior.AllowGet);
-            //var task = DBInteraction.GetAllUsersTextAsync();
-            //var users = task.Result;
-            //var users = DBInteraction.GetAllUsersText().Select })
-            //return Json(users, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
