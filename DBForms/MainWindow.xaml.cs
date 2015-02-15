@@ -119,21 +119,14 @@ namespace DbForms
                     JobPanel.Visibility = Visibility.Visible;
                     break;
                 case "Show all users":
-                    var task = DBInteraction.GetAllUsersTextAsync();
                     StatusText.Text = "fetching users";
-                    List<UserText> users = null;
                     var timer = new Timer(500);
                     timer.Elapsed += (s, ev) => this.Dispatcher.Invoke((Action)(() => StatusText.Text = StatusText.Text + "."));
                     timer.Start();
-                    users = await task;
+                    var users = await DBInteraction.GetAllUsersTextAsync();
                     timer.Stop();
                     StatusText.Text = "users found: " + users.Count;
-                    var list = new List<UserText>();
-                    foreach (var u in users)
-                    {
-                        list.Add(u);
-                    }
-                    DG.ItemsSource = list;
+                    DG.ItemsSource = users;
                     DG.Visibility = Visibility.Visible;
                     DG.Height = 200;
                     break;

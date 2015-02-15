@@ -208,12 +208,12 @@ namespace DBManager
             var task = await Task<List<UserText>>.Factory.StartNew(() => GetAllUsersText());
             return task;
             //var task = await Task<List<DataObject>>(() => GetAllUsersText());
-        }
+        } 
 
         public static List<UserText> GetAllUsersText()
         {
             using (var ctx = new SimpleContext())
-            {
+            { 
                 var usersQuery = ctx.Users
                     .GroupJoin(ctx.UserJobs, u => u, uj => uj.User, (u, uj) => new { User = u, Jobs = uj.Select(uje => uje.Job) });
                 var userJobs = usersQuery.ToList();
