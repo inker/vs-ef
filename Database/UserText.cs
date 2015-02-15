@@ -15,30 +15,30 @@ namespace DBManager
         public string Jobs { get; set; }
     }
 
-    //public class UserCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //    public string Surname { get; set; }
-    //    public long OrganisationID { get; set; } 
-    //}
+    public class UserCustom
+    {
+        public long ID { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public long OrganisationID { get; set; }
+    }
 
-    //public class OrganisationCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //}
+    public class OrganisationCustom
+    {
+        public long ID { get; set; }
+        public string Name { get; set; }
+    }
 
-    //public class JobCustom
-    //{
-    //    public long ID { get; set; }
-    //    public string Name { get; set; }
-    //}
+    public class JobCustom
+    {
+        public long ID { get; set; }
+        public string Name { get; set; }
+    }
 
-    //public class UserJobCustom
-    //{
-    //    public long ID { get; set; }
-    //    public long UserID { get; set; }
-    //    public long JobID { get; set; }
-    //}
+    public class UserJobCustom
+    {
+        public long ID { get; set; }
+        public long UserID { get; set; }
+        public long JobID { get; set; }
+    }
 }

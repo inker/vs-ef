@@ -210,6 +210,38 @@ namespace DBManager
         //    }
         //}
 
+        public static List<UserCustom> GetAllUsersRaw()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                return ctx.Users.Select(user => new UserCustom { ID = user.ID, Name = user.Name, OrganisationID = user.OrganisationID, Surname = user.Surname }).ToList();
+            }
+        }
+
+        public static List<OrganisationCustom> GetAllOrganizationsRaw()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                return ctx.Organisations.Select(org => new OrganisationCustom { ID = org.ID, Name = org.Name }).ToList();
+            }
+        }
+
+        public static List<UserJobCustom> GetAllUserJobsRaw()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                return ctx.UserJobs.Select(uj => new UserJobCustom { ID = uj.ID, UserID = uj.User.ID, JobID = uj.Job.ID }).ToList();
+            }
+        }
+
+        public static List<JobCustom> GetAllJobsRaw()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                return ctx.Jobs.Select(job => new JobCustom { ID = job.ID, Name = job.Name }).ToList();
+            }
+        }
+
         public async static Task<List<UserText>> GetAllUsersTextAsync()
         {
             var task = await Task<List<UserText>>.Factory.StartNew(() => GetAllUsersText());

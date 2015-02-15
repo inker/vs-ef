@@ -252,6 +252,7 @@ Ext.onReady(() => {
         });
 
         var button: Ext.button.ISplit = Ext.create('Ext.button.Split', {
+            id: "actionButton",
             text: 'Action',
             // on button click
             handler: initialButtonHander,
@@ -263,7 +264,7 @@ Ext.onReady(() => {
                         handler: () => {
                             resetToolbarAndButton();
                             tb.add({
-                                id: 'org',
+                                id: 'orgField',
                                 xtype: 'textfield',
                                 name: 'Organisation',
                                 emptyText: "organization"
@@ -275,7 +276,7 @@ Ext.onReady(() => {
                                 handler: () => {
                                     var fieldNumber = jobPanel.items.getCount() + 1;
                                     jobPanel.add({
-                                        id: 'job' + fieldNumber,
+                                        id: 'jobField' + fieldNumber,
                                         xtype: 'textfield',
                                         name: 'Job',
                                         emptyText: 'job #' + fieldNumber,
@@ -293,14 +294,14 @@ Ext.onReady(() => {
                             button.setHandler(() => {
                                 gridPanel.setLoading(); // as if the view is updating
                                 var insertParams = {
-                                    Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
-                                    Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value,
-                                    Organisation: (<HTMLInputElement>document.querySelector("[placeholder=organization]")).value
+                                    Name: getInputValueById('nameField'),
+                                    Surname: getInputValueById('surnameField'),
+                                    Organisation: getInputValueById('orgField')
                                 }
                                 var jobPanelSize = jobPanel.items.getCount();
                                 var jobs = [];
                                 for (var i = 1; i <= jobPanelSize; ++i) {
-                                    jobs.push((<HTMLInputElement>document.querySelector("[placeholder='job #" + i + "']")).value)
+                                    jobs.push(getInputValueById('jobField' + i))
                                 }
                                 insertParams['Jobs'] = jobs.join(',');
                                 Ext.Ajax.request({
@@ -326,8 +327,8 @@ Ext.onReady(() => {
                                 Ext.Ajax.request({
                                     url: '/Users',
                                     params: {
-                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
-                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                        Name: getInputValueById('nameField'),
+                                        Surname: getInputValueById('surnameField')
                                     },
                                     method: 'DELETE',
                                     timeout: 30000,
@@ -343,7 +344,7 @@ Ext.onReady(() => {
                         handler: () => {
                             resetToolbarAndButton();
                             tb.add({
-                                id: 'job',
+                                id: 'jobField',
                                 xtype: 'textfield',
                                 name: 'Job',
                                 emptyText: "job to add"
@@ -353,10 +354,10 @@ Ext.onReady(() => {
                             button.setHandler(() => {
                                 gridPanel.setLoading();
                                 Ext.Ajax.request({
-                                    url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to add']")).value,
+                                    url: '/Users/Jobs/' + getInputValueById('jobField'),
                                     params: {
-                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
-                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                        Name: getInputValueById('nameField'),
+                                        Surname: getInputValueById('surnameField')
                                     },
                                     method: 'POST',
                                     timeout: 30000,
@@ -372,7 +373,7 @@ Ext.onReady(() => {
                         handler: () => {
                             resetToolbarAndButton();
                             tb.add({
-                                id: 'job',
+                                id: 'jobField',
                                 xtype: 'textfield',
                                 name: 'Job',
                                 emptyText: "job to remove"
@@ -382,10 +383,10 @@ Ext.onReady(() => {
                             button.setHandler(() => {
                                 gridPanel.setLoading();
                                 Ext.Ajax.request({
-                                    url: '/Users/Jobs/' + (<HTMLInputElement>document.querySelector("[placeholder='job to remove']")).value,
+                                    url: '/Users/Jobs/' + getInputValueById('jobField'),
                                     params: {
-                                        Name: (<HTMLInputElement>document.querySelector("[placeholder=name]")).value,
-                                        Surname: (<HTMLInputElement>document.querySelector("[placeholder=surname]")).value
+                                        Name: getInputValueById('nameField'),
+                                        Surname: getInputValueById('surnameField')
                                     },
                                     method: 'DELETE',
                                     timeout: 30000,
@@ -401,31 +402,7 @@ Ext.onReady(() => {
             }),
             renderTo: Ext.getBody()
         });
-
         resetToolbarAndButton();
-
-        var panel = Ext.create('Ext.panel.Panel', {
-            bodyPadding: 5,  // Don't want content to crunch against the borders
-            title: 'Filters',
-            items: [gridPanel, tb, button],
-            bbar: Ext.create('Ext.ux.StatusBar', {
-                id: 'my-status',
-
-                // defaults to use when the status is cleared:
-                defaultText: 'Default status text',
-                defaultIconCls: 'default-icon',
-
-                // values to set initially:
-                text: 'Ready',
-                iconCls: 'ready-icon',
-
-                // any standard Toolbar items:
-                items: [{
-                    text: 'A Button'
-                }, '-', 'Plain Text']
-            }),
-            renderTo: Ext.getBody()
-        });
 
         function initialButtonHander() {
             button.showMenu();
@@ -436,13 +413,13 @@ Ext.onReady(() => {
             tb.hide();
             tb.removeAll();
             tb.add({
-                id: 'name',
+                id: 'nameField',
                 xtype: 'textfield',
                 name: 'Name',
                 emptyText: "name"
             });
             tb.add({
-                id: 'surname',
+                id: 'surnameField',
                 xtype: 'textfield',
                 name: 'Surname',
                 emptyText: "surname"
@@ -455,6 +432,15 @@ Ext.onReady(() => {
         function resetToInitialState() {
             resetToolbarAndButton();
             button.setText("Action");
+        }
+
+        function getInputValueById(id: string) {
+            var table = <HTMLTableElement>Ext.get(id).dom;
+            table = <HTMLTableElement>table.tBodies[0];
+            var row = <HTMLTableRowElement>table.rows[0];
+            var cell = <HTMLTableCellElement>row.cells[1];
+            var input = <HTMLInputElement>cell.children[0];
+            return input.value;
         }
 
         function onAjaxSuccess(response, options) {
@@ -476,9 +462,14 @@ Ext.onReady(() => {
                     }
                 });
             });
-        }    
-    }
+        }
 
+        button.text
+        
+    }
+    addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.keyCode == 13) Ext.get("actionButton").dom.click()
+    });  
     // testing
     //console.log(u);
     //console.log(u.get('Surname'));

@@ -12,11 +12,8 @@ namespace MvcApplication1.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            using (var ctx = new SimpleContext())
-            {
-                var users = ctx.Users.Select(item => new { item.ID, item.Name, item.OrganisationID, item.Surname }).ToList();
-                return Json(users, JsonRequestBehavior.AllowGet);
-            }
+            var users = DBInteraction.GetAllUsersRaw();
+            return Json(users, JsonRequestBehavior.AllowGet);
             //var task = DBInteraction.GetAllUsersTextAsync();
             //var users = task.Result;
             //var users = DBInteraction.GetAllUsersText().Select })
@@ -26,31 +23,22 @@ namespace MvcApplication1.Controllers
         [HttpGet]
         public ActionResult Organisations()
         {
-            using (var ctx = new SimpleContext())
-            {
-                var orgs = ctx.Organisations.Select(item => new { item.ID, item.Name }).ToList();
-                return Json(orgs, JsonRequestBehavior.AllowGet);
-            }
+            var orgs = DBInteraction.GetAllOrganizationsRaw();
+            return Json(orgs, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         public ActionResult Jobs()
         {
-            using (var ctx = new SimpleContext())
-            {
-                var jobs = ctx.Jobs.Select(item => new { item.ID, item.Name }).ToList();
-                return Json(jobs, JsonRequestBehavior.AllowGet);
-            }
+            var jobs = DBInteraction.GetAllJobsRaw();
+            return Json(jobs, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         public ActionResult UserJobs()
         {
-            using (var ctx = new SimpleContext())
-            {
-                var userJobs = ctx.UserJobs.Select(item => new { item.ID, UserID = item.User.ID, JobID = item.Job.ID }).ToList();
-                return Json(userJobs, JsonRequestBehavior.AllowGet);
-            }
+            var userJobs = DBInteraction.GetAllUserJobsRaw();
+            return Json(userJobs, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
