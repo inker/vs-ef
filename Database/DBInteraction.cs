@@ -219,22 +219,16 @@ namespace DBManager
                 var userJobs = usersQuery.ToList();
                 if (usersQuery.Any())
                 {
-                    var objs = new List<UserText>();
-                    foreach (var userJob in userJobs)
+                    return userJobs.Select(userJob => new UserText
                     {
-                        objs.Add(new UserText
-                        {
-                            ID = userJob.User.ID,
-                            Name = userJob.User.Name,
-                            Surname = userJob.User.Surname,
-                            Organization = userJob.User.Organisation.Name,
-                            Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
-                        });
-                    }
-                    return objs;
+                        ID = userJob.User.ID,
+                        Name = userJob.User.Name,
+                        Surname = userJob.User.Surname,
+                        Organization = userJob.User.Organisation.Name,
+                        Jobs = string.Join(", ", userJob.Jobs.Select(j => j.Name))
+                    }).ToList();
                 }
-                ctx.SaveChanges();
-                return null;
+                return new List<UserText>();
             }
         }
 
