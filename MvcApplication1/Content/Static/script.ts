@@ -433,7 +433,7 @@ Ext.onReady(() => {
 
         function getInputValueById(id: string) {
             
-            var table = <HTMLTableElement>Ext.get(id).dom.tBodies[0];
+            var table = <HTMLTableElement>Ext.get(id).dom;
             table = <HTMLTableElement>table.tBodies[0];
             var row = <HTMLTableRowElement>table.rows[0];
             var cell = <HTMLTableCellElement>row.cells[1];
