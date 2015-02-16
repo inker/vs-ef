@@ -230,91 +230,132 @@ Ext.onReady(() => {
     }
 
     function initGUI() {
+
+        var insertBox: Ext.window.IWindow = Ext.create('Ext.window.Window', {
+            title: 'Insert new user',
+            width: 200,
+            layout: 'fit',
+            modal: true,
+            buttonAlign: 'left',
+            closable: false,
+            items: [
+                {
+                    xtype: 'form',
+                    frame: false,
+                    border: 0,
+                    layout: {
+                        type: 'hbox',
+                        align: 'middle'
+                    },
+                    fieldDefaults: {
+                        msgTarget: 'side',
+                        labelWidth: 55
+                    },
+                    items: [
+                        {
+                            xtype: 'container',
+                            flex: 1,
+                            padding: 10,
+                            layout: 'auto',
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    id: 'nameField',
+                                    name: 'name',
+                                    emptyText: 'Name',
+                                    allowBlank: false,
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    id: 'surnameField',
+                                    name: 'surname',
+                                    emptyText: 'Surname',
+                                    allowBlank: false,
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'textfield',
+                                    id: 'orgField',
+                                    name: 'org',
+                                    emptyText: 'Organization',
+                                    allowBlank: false,
+                                    flex: 1
+                                },
+                                {
+                                    id: 'addJobButton',
+                                    xtype: 'button',
+                                    text: "add job",
+                                    handler: () => {
+                                        var fieldNumber = insertBox.items.getCount() + 1;
+                                        insertBox.add({
+                                            id: 'jobField' + fieldNumber,
+                                            xtype: 'textfield',
+                                            name: 'Job',
+                                            emptyText: 'job #' + fieldNumber,
+                                        });
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            buttons: [
+                {
+                    text: 'OK',
+                    handler: () => {
+                        insertBox.hide();
+                    }
+                }, {
+                    text: 'Cancer',
+                    handler: () => {
+                        insertBox.hide();
+                    }
+                }
+            ]
+        });
+
+
         var gridPanel: Ext.grid.IGridPanel = Ext.create('Ext.grid.Panel', {
             title: 'Users',
             store: users,
+            plugins: [
+                Ext.create('Ext.grid.plugin.CellEditing', {
+                    pluginId: "cellEditing",
+                    clicksToEdit: 1
+                })
+            ],
             tbar: [
                 {
+                    icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
                     text: 'Insert user',
                     handler: () => {
                         resetToolbarAndButton();
-                        tb.add({
-                            id: 'orgField',
-                            xtype: 'textfield',
-                            name: 'Organisation',
-                            emptyText: "organization"
-                        });
-                        tb.add({
-                            id: 'addJobButton',
-                            xtype: 'button',
-                            text: "add job",
-                            handler: () => {
-                                var fieldNumber = jobPanel.items.getCount() + 1;
-                                jobPanel.add({
-                                    id: 'jobField' + fieldNumber,
-                                    xtype: 'textfield',
-                                    name: 'Job',
-                                    emptyText: 'job #' + fieldNumber,
-                                    margin: 0
-                                });
-                            }
-                        });
-                        var jobPanel: Ext.panel.IPanel = Ext.create('Ext.panel.Panel', {
-                            id: 'jobPanel'
-                        });
-                        tb.add(jobPanel);
-                        tb.show();
-                        button.setText("Insert user");
-
-                        button.setHandler(() => {
-                            gridPanel.setLoading(); // as if the view is updating
-                            var insertParams = {
-                                Name: getInputValueById('nameField'),
-                                Surname: getInputValueById('surnameField'),
-                                Organisation: getInputValueById('orgField')
-                            }
-                            var jobPanelSize = jobPanel.items.getCount();
-                            var jobs = [];
-                            for (var i = 1; i <= jobPanelSize; ++i) {
-                                jobs.push(getInputValueById('jobField' + i))
-                            }
-                            insertParams['Jobs'] = jobs.join(',');
-                            Ext.Ajax.request({
-                                url: '/Users',
-                                params: insertParams,
-                                method: 'POST',
-                                success: onAjaxSuccess,
-                                failure: onAjaxFail
-                            });
-                            resetToInitialState();
-                        });
+                        insertBox.show();
+                        //var u = <Ext.data.IModel>Ext.create('User', { ID: '', Name: '.', Surname: '' });
+                        //users.add(u);
+                        //var n = users.getAt(users.getCount());
+                        //var ce = <Ext.grid.plugin.ICellEditing>gridPanel.getPlugin('cellEditing');
+                        //var cols = gridPanel.columns;
+                        //for (var i = 0; i < cols.length; ++i) {
+                            
+                        //    ce.startEdit(u);
+                        //    u.set('Name', 'foo');
+                        //    users.sync();
+                        //}
+                        //users.sync();
+                        //gridPanel.getView().refresh();
                     }
                 }, {
-                    text: 'Delete user',
-                    handler: () => {
-                        resetToolbarAndButton();
-                        tb.show();
-                        button.setText("Delete user");
-                        button.setHandler(() => {
-                            gridPanel.setLoading();
-                            Ext.Ajax.request({
-                                url: '/Users',
-                                params: {
-                                    Name: getInputValueById('nameField'),
-                                    Surname: getInputValueById('surnameField')
-                                },
-                                method: 'DELETE',
-                                success: onAjaxSuccess,
-                                failure: onAjaxFail
-                            });
-                            resetToInitialState();
-                        });
-                    }
-                }, {
+                    icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
                     text: 'Add job to user',
+                    disabled: true,
                     handler: () => jobOperationButtonHandler('add')
                 }, {
+                    icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
                     text: 'Remove job from user',
+                    disabled: true,
                     handler: () => jobOperationButtonHandler('remove')
                 }
             ],
@@ -324,12 +365,27 @@ Ext.onReady(() => {
                 { text: "Organisation", renderer: getOrgName },
                 { text: "Jobs", renderer: getJobString },
                 {
-                    text: '',
                     xtype: 'actioncolumn',
-                    //items: [{
-                    //    text: 'X',
-                    //    handler: () => alert("deleted user")
-                    //}]
+                    items: [{
+                        icon: 'https://cdn3.iconfinder.com/data/icons/musthave/128/Delete.png',
+                        tooltip: 'delete user',
+                        tooltipType: 'title',
+                        handler: (grid: Ext.grid.IGridPanel, rowIndex: number) => {
+                            gridPanel.setLoading();
+                            var rec = grid.getStore().getAt(rowIndex)
+                            console.log(rec.get('Name'));
+                            Ext.Ajax.request({
+                                url: '/Users',
+                                params: {
+                                    Name: rec.get('Name'),
+                                    Surname: rec.get('Surname')
+                                },
+                                method: 'DELETE',
+                                success: onAjaxSuccess,
+                                failure: onAjaxFail
+                            });
+                        }
+                    }]
                 }
             ],
             //width: 500,
@@ -403,7 +459,7 @@ Ext.onReady(() => {
                                     success: onAjaxSuccess,
                                     failure: onAjaxFail
                                 });
-                                resetToInitialState();
+                                resetToolbarAndButton()
                             });
                         }
                     }, {
@@ -412,20 +468,7 @@ Ext.onReady(() => {
                             resetToolbarAndButton();
                             tb.show();
                             button.setText("Delete user");
-                            button.setHandler(() => {
-                                gridPanel.setLoading();
-                                Ext.Ajax.request({
-                                    url: '/Users',
-                                    params: {
-                                        Name: getInputValueById('nameField'),
-                                        Surname: getInputValueById('surnameField')
-                                    },
-                                    method: 'DELETE',
-                                    success: onAjaxSuccess,
-                                    failure: onAjaxFail
-                                });
-                                resetToInitialState();
-                            });
+                            button.setHandler(onDeleteUserClick);
                         }
                     }, {
                         text: 'Add job to user',
@@ -461,13 +504,24 @@ Ext.onReady(() => {
                 emptyText: "surname"
             });
             button.setHandler(initialButtonHander);
+            button.setText("Action");
         };
 
         resetToolbarAndButton();
 
-        function resetToInitialState() {
+        function onDeleteUserClick() {
+            gridPanel.setLoading();
+            Ext.Ajax.request({
+                url: '/Users',
+                params: {
+                    Name: getInputValueById('nameField'),
+                    Surname: getInputValueById('surnameField')
+                },
+                method: 'DELETE',
+                success: onAjaxSuccess,
+                failure: onAjaxFail
+            });
             resetToolbarAndButton();
-            button.setText("Action");
         }
 
         function jobOperationButtonHandler(action: string) {
@@ -496,7 +550,7 @@ Ext.onReady(() => {
                     success: onAjaxSuccess,
                     failure: onAjaxFail
                 });
-                resetToInitialState();
+                resetToolbarAndButton();
             });
         }
 
