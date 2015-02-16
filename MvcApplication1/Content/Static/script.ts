@@ -86,7 +86,7 @@ Ext.onReady(() => {
 
     var orgs: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'Organisation',
-        storeId: 'organisationStore',
+        storeId: 'Organisations',
         //data: {
         //    items: [
         //        { 'ID': 1, 'Name': 'ITMO' },
@@ -105,12 +105,12 @@ Ext.onReady(() => {
             type: 'ajax',
             url: '/Users/Organisations'
         },
-        autoLoad: { callback: checkLoading }
+        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     var users: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'User',
-        storeId: 'userStore',
+        storeId: 'Users',
         //data: {
         //    'items': [
         //
@@ -120,9 +120,9 @@ Ext.onReady(() => {
         //},
         proxy: { 
 	        type: 'ajax', 
-            url: '/Users'
+            url: '/Users/Users'
         },
-        autoLoad: { callback: checkLoading }
+        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
         //proxy: {
         //    type: 'memory',
         //    reader: {
@@ -134,7 +134,7 @@ Ext.onReady(() => {
 
     var jobs: Ext.data.IStore = Ext.create('Ext.data.Store', {
         model: 'Job',
-        storeId: 'jobStore',
+        storeId: 'Jobs',
         //data: {
         //    items: [
         //        { 'ID': 1, 'Name': 'student' },
@@ -153,12 +153,12 @@ Ext.onReady(() => {
             type: 'ajax',
             url: '/Users/Jobs'
         },
-        autoLoad: { callback: checkLoading }
+        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     var userJobs: Ext.data.IStore = Ext.create('Ext.data.Store', <Ext.data.IStore> {
         model: 'UserJob',
-        storeId: 'userJobStore',
+        storeId: 'UserJobs',
         //data: {
         //    items: [
         //        { 'ID': 1, 'UserID': 1, 'JobID': 3 },
@@ -177,7 +177,7 @@ Ext.onReady(() => {
             type: 'ajax',
             url: '/Users/UserJobs'
         },
-        autoLoad: { callback: checkLoading }
+        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     //Ext.StoreManager.lookup('organisationStore').load();
@@ -192,7 +192,10 @@ Ext.onReady(() => {
         var jobArr = [];
         // get userjobs with specified user-id
         // for each userjob find job by its id & push to job array
-        userJobs.query('UserID', user.getId()).each(item => jobArr.push(jobs.getById(item.get('JobID'))));
+        userJobs
+            .query( 'UserID', user.getId(), false, false, true )
+            .each( item => jobArr.push(jobs.getById(item.get('JobID'))) );
+        console.log(jobArr);
         return jobArr;
     }
 
@@ -218,26 +221,118 @@ Ext.onReady(() => {
     //orgs.sync();
     //users.sync();
 
-    function checkLoading() {
+    function onAllStoresLoad(callback: () => void) {
         var loading = 0;
         Ext.data.StoreManager.each(store => loading += store.isLoading());
         if (!loading) {
-            initGUI();
+            callback();
         }
     }
 
     function initGUI() {
         var gridPanel: Ext.grid.IGridPanel = Ext.create('Ext.grid.Panel', {
             title: 'Users',
-            store: Ext.data.StoreManager.lookup('userStore'),
+            store: users,
+            tbar: [
+                {
+                    text: 'Insert user',
+                    handler: () => {
+                        resetToolbarAndButton();
+                        tb.add({
+                            id: 'orgField',
+                            xtype: 'textfield',
+                            name: 'Organisation',
+                            emptyText: "organization"
+                        });
+                        tb.add({
+                            id: 'addJobButton',
+                            xtype: 'button',
+                            text: "add job",
+                            handler: () => {
+                                var fieldNumber = jobPanel.items.getCount() + 1;
+                                jobPanel.add({
+                                    id: 'jobField' + fieldNumber,
+                                    xtype: 'textfield',
+                                    name: 'Job',
+                                    emptyText: 'job #' + fieldNumber,
+                                    margin: 0
+                                });
+                            }
+                        });
+                        var jobPanel: Ext.panel.IPanel = Ext.create('Ext.panel.Panel', {
+                            id: 'jobPanel'
+                        });
+                        tb.add(jobPanel);
+                        tb.show();
+                        button.setText("Insert user");
+
+                        button.setHandler(() => {
+                            gridPanel.setLoading(); // as if the view is updating
+                            var insertParams = {
+                                Name: getInputValueById('nameField'),
+                                Surname: getInputValueById('surnameField'),
+                                Organisation: getInputValueById('orgField')
+                            }
+                            var jobPanelSize = jobPanel.items.getCount();
+                            var jobs = [];
+                            for (var i = 1; i <= jobPanelSize; ++i) {
+                                jobs.push(getInputValueById('jobField' + i))
+                            }
+                            insertParams['Jobs'] = jobs.join(',');
+                            Ext.Ajax.request({
+                                url: '/Users',
+                                params: insertParams,
+                                method: 'POST',
+                                success: onAjaxSuccess,
+                                failure: onAjaxFail
+                            });
+                            resetToInitialState();
+                        });
+                    }
+                }, {
+                    text: 'Delete user',
+                    handler: () => {
+                        resetToolbarAndButton();
+                        tb.show();
+                        button.setText("Delete user");
+                        button.setHandler(() => {
+                            gridPanel.setLoading();
+                            Ext.Ajax.request({
+                                url: '/Users',
+                                params: {
+                                    Name: getInputValueById('nameField'),
+                                    Surname: getInputValueById('surnameField')
+                                },
+                                method: 'DELETE',
+                                success: onAjaxSuccess,
+                                failure: onAjaxFail
+                            });
+                            resetToInitialState();
+                        });
+                    }
+                }, {
+                    text: 'Add job to user',
+                    handler: () => jobOperationButtonHandler('add')
+                }, {
+                    text: 'Remove job from user',
+                    handler: () => jobOperationButtonHandler('remove')
+                }
+            ],
             columns: [
                 { text: 'ID', dataIndex: 'ID', width: '10%' },
                 { text: 'Full Name', xtype: 'templatecolumn', tpl: '{Name} {Surname}' },
                 { text: "Organisation", renderer: getOrgName },
                 { text: "Jobs", renderer: getJobString },
-                { text: 'Org', renderer: (value, metadata, record, rowIndex, colIndex, store, view) => record.getOrganisation().get('Name') }
+                {
+                    text: '',
+                    xtype: 'actioncolumn',
+                    //items: [{
+                    //    text: 'X',
+                    //    handler: () => alert("deleted user")
+                    //}]
+                }
             ],
-            width: 500,
+            //width: 500,
             renderTo: Ext.getBody()
         });
 
@@ -305,8 +400,6 @@ Ext.onReady(() => {
                                     url: '/Users',
                                     params: insertParams,
                                     method: 'POST',
-                                    timeout: 30000,
-                                    //success: (response, options) => users.load({ callback: () => users.sync() })
                                     success: onAjaxSuccess,
                                     failure: onAjaxFail
                                 });
@@ -328,8 +421,6 @@ Ext.onReady(() => {
                                         Surname: getInputValueById('surnameField')
                                     },
                                     method: 'DELETE',
-                                    timeout: 30000,
-                                    //success: (response, options) => users.load({ callback: () => users.sync() })
                                     success: onAjaxSuccess,
                                     failure: onAjaxFail
                                 });
@@ -379,15 +470,6 @@ Ext.onReady(() => {
             button.setText("Action");
         }
 
-        function getInputValueById(id: string) {
-            var table = <HTMLTableElement>Ext.get(id).dom;
-            table = <HTMLTableElement>table.tBodies[0];
-            var row = <HTMLTableRowElement>table.rows[0];
-            var cell = <HTMLTableCellElement>row.cells[1];
-            var input = <HTMLInputElement>cell.children[0];
-            return input.value;
-        }
-
         function jobOperationButtonHandler(action: string) {
             var add: boolean;
             if (action == 'add') add = true;
@@ -411,7 +493,6 @@ Ext.onReady(() => {
                         Surname: getInputValueById('surnameField')
                     },
                     method: add ? 'POST' : 'DELETE',
-                    timeout: 30000,
                     success: onAjaxSuccess,
                     failure: onAjaxFail
                 });
@@ -419,24 +500,44 @@ Ext.onReady(() => {
             });
         }
 
+        function getInputValueById(id: string) {
+            var table = <HTMLTableElement>Ext.get(id).dom;
+            table = <HTMLTableElement>table.tBodies[0];
+            var row = <HTMLTableRowElement>table.rows[0];
+            var cell = <HTMLTableCellElement>row.cells[1];
+            var input = <HTMLInputElement>cell.children[0];
+            return input.value;
+        }
+
         function onAjaxSuccess(response, options) {
-            syncStores();
+            reloadDataOneConnection();
             gridPanel.setLoading(false);
         }
 
         function onAjaxFail(response, options) {
-            alert("couldn't submit the AJAX request");
-            gridPanel.setLoading(false);
+            Ext.Msg.alert('Error', 'Data was not delivered to the server', () => gridPanel.setLoading(false));
         }
 
-        function syncStores() {
-            Ext.data.StoreManager.each((store: Ext.data.IStore) => {
-                store.load({
-                    callback: () => {
-                        store.sync();
-                        gridPanel.getView().refresh();
-                    }
-                });
+        /* method 1: connection for each store */
+        function reloadData() {
+            Ext.data.StoreManager.each((store: Ext.data.IStore) => store.load( () => gridPanel.getView().refresh() ));
+        }
+
+        /* method 2: one connection, all stores are updated after success */
+        function reloadDataOneConnection() {
+            Ext.Ajax.request({
+                url: '/Users',
+                method: 'GET',
+                success: res => {
+                    var data = JSON.parse(res.responseText);
+                    Ext.data.StoreManager.eachKey((key: string, store: Ext.data.IStore) => {
+                        if (key != 'ext-empty-store') {
+                            store.loadData(data[key]);
+                        }
+                    });
+                    onAllStoresLoad(() => gridPanel.getView().refresh());
+                },
+                failure: onAjaxFail
             });
         }
         

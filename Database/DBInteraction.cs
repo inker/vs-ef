@@ -28,8 +28,8 @@ namespace DBManager
                         throw new Exception("user already exists");
                     }
                     usr = new User { Name = userName, Organisation = org, Surname = userSurname };
-                    // not necessary to add the user as it is later implicitly added via UserJob addition (below)
-                    //context.Users.Add(usr);
+                    // necessary as the User won't be added via UserJob as the jobNames array is empty
+                    ctx.Users.Add(usr);
 
                     var jobs = ctx.Jobs.Where(job => jobNames.Contains(job.Name)).ToList();
                     Console.WriteLine("found jobs: " + jobs.Count);
@@ -82,7 +82,7 @@ namespace DBManager
                     if (job == null)
                     {
                         job = new Job { Name = jobName };
-                        // not necessary
+                        // not necessary to add the job as it is later implicitly added via UserJob addition (below)
                         //ctx.Jobs.Add(job); 
                     }
                     var userJob = new UserJob { User = user, Job = job };

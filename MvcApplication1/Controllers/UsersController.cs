@@ -11,6 +11,18 @@ namespace MvcApplication1.Controllers
     {
         [HttpGet]
         [ActionName("Index")]
+        public ActionResult GetEverything()
+        {
+            var Users = DBInteraction.GetAllUsersRaw();
+            var Organisations = DBInteraction.GetAllOrganizationsRaw();
+            var Jobs = DBInteraction.GetAllJobsRaw();
+            var UserJobs = DBInteraction.GetAllUserJobsRaw();
+            var obj = new { Users, Organisations, Jobs, UserJobs };
+            return Json(obj, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [ActionName("Users")]
         public ActionResult GetAllUsers()
         {
             var users = DBInteraction.GetAllUsersRaw();
