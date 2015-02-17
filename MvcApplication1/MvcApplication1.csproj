@@ -783,6 +783,9 @@
     <TypeScriptCompile Include="Content\Static\Stores\OrganisationStore.ts" />
     <TypeScriptCompile Include="Content\Static\Stores\UserJobStore.ts" />
     <TypeScriptCompile Include="Content\Static\Stores\UserStore.ts" />
+    <TypeScriptCompile Include="Content\Static\util.ts" />
+    <TypeScriptCompile Include="Content\Static\Views\InsertUserWindow.ts" />
+    <TypeScriptCompile Include="Content\Static\Views\UserGrid.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Database\Database.csproj">
@@ -800,7 +803,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptModuleKind>none</TypeScriptModuleKind>
+    <TypeScriptModuleKind>amd</TypeScriptModuleKind>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

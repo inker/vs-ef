@@ -20,4 +20,4 @@
         type: 'ajax',
         url: '/Users/UserJobs'
     }
-}); 
+});

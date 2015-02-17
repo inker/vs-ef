@@ -11,4 +11,4 @@
         { type: 'presence', field: 'UserID' },
         { type: 'presence', field: 'JobID' }
     ]
-}); 
+});

@@ -14,4 +14,4 @@
         primaryKey: 'ID',
         foreignKey: 'JobID'
     }
-});
+}); 

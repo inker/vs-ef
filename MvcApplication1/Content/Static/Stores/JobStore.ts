@@ -19,6 +19,6 @@
     proxy: {
         type: 'ajax',
         url: '/Users/Jobs'
-    }
+    } 
     
 }); 

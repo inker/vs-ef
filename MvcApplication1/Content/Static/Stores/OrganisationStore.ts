@@ -1,5 +1,6 @@
 ﻿Ext.define('Stores.OrganisationStore', {
     extend: 'Ext.data.Store',
+    id: 'orgStore',
     model: 'Models.Organisation',
     storeId: 'Organisations',
     //data: {
@@ -20,4 +21,4 @@
         type: 'ajax',
         url: '/Users/Organisations'
     }
-});
+}); 

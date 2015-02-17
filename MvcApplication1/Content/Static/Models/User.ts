@@ -28,4 +28,4 @@
         foreignKey: 'UserID'
     }
 
-});
+}); 
