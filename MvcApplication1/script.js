@@ -1,75 +1,134 @@
+Ext.define('Models.Job', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'ID', type: 'int' },
+        { name: 'Name', type: 'string' },
+    ],
+    idProperty: 'ID',
+    validations: [
+        { type: 'presence', field: 'ID' }
+    ],
+    hasMany: {
+        model: 'UserJob',
+        name: 'UserJobs',
+        primaryKey: 'ID',
+        foreignKey: 'JobID'
+    }
+});
+Ext.define('Models.Organisation', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'ID', type: 'int' },
+        { name: 'Name', type: 'string' },
+    ],
+    idProperty: 'ID',
+    validations: [
+        { type: 'presence', field: 'ID' }
+    ],
+    hasMany: {
+        model: 'User',
+        name: 'Users',
+        primaryKey: 'ID',
+        foreignKey: 'OrganisationID',
+    }
+});
+Ext.define('Models.User', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'ID', type: 'int' },
+        { name: 'Name', type: 'string' },
+        { name: 'Surname', type: 'string' },
+        { name: 'OrganisationID', type: 'int' }
+    ],
+    idProperty: 'ID',
+    validations: [
+        { type: 'presence', field: 'ID' }
+    ],
+    //belongsTo: { 
+    //    model: 'Organisation',
+    //    name: 'Organisation',
+    //    //getterName: 'getOrganisation',
+    //    //setterName: 'setOrganisation',
+    //    //instanceName: 'Organisation',
+    //    primaryKey: 'ID',
+    //    foreignKey: 'OrganisationID',
+    //    associationKey: 'OrganisationID', 
+    //    //foreignStore: 'organisationStore'
+    //},
+    hasMany: {
+        model: 'UserJob',
+        name: 'UserJobs',
+        primaryKey: 'ID',
+        foreignKey: 'UserID'
+    }
+});
+Ext.define('Models.UserJob', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'ID', type: 'int' },
+        { name: 'UserID', type: 'int' },
+        { name: 'JobID', type: 'int' }
+    ],
+    idProperty: 'ID',
+    validations: [
+        { type: 'presence', field: 'ID' },
+        { type: 'presence', field: 'UserID' },
+        { type: 'presence', field: 'JobID' }
+    ]
+});
 /// <reference path="./ExtJS.d.ts"/>
-
-Ext.onReady(() => {
-
-    var orgs: Ext.data.IStore = Ext.create('Stores.OrganisationStore', {
-        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
+Ext.onReady(function () {
+    var orgs = Ext.create('Stores.OrganisationStore', {
+        autoLoad: { callback: function () { return onAllStoresLoad(initGUI); } }
     });
-
-    var users: Ext.data.IStore = Ext.create('Stores.UserStore', {
-        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
+    var users = Ext.create('Stores.UserStore', {
+        autoLoad: { callback: function () { return onAllStoresLoad(initGUI); } }
     });
-
-    var jobs: Ext.data.IStore = Ext.create('Stores.JobStore', {
-        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
+    var jobs = Ext.create('Stores.JobStore', {
+        autoLoad: { callback: function () { return onAllStoresLoad(initGUI); } }
     });
-
-    var userJobs: Ext.data.IStore = Ext.create('Stores.UserJobStore', {
-        autoLoad: { callback: () => onAllStoresLoad(initGUI) }
+    var userJobs = Ext.create('Stores.UserJobStore', {
+        autoLoad: { callback: function () { return onAllStoresLoad(initGUI); } }
     });
-
     //Ext.StoreManager.lookup('organisationStore').load();
-
     console.log(orgs);
-
     function getOrgName(value, metadata, record, rowIndex, colIndex, store, view) {
         return orgs.getById(record.get('OrganisationID')).get('Name');
     }
-
     function findJobs(user) {
         var jobArr = [];
         // get userjobs with specified user-id
         // for each userjob find job by its id & push to job array
-        userJobs
-            .query( 'UserID', user.getId(), false, false, true )
-            .each( item => jobArr.push(jobs.getById(item.get('JobID'))) );
+        userJobs.query('UserID', user.getId(), false, false, true).each(function (item) { return jobArr.push(jobs.getById(item.get('JobID'))); });
         console.log(jobArr);
         return jobArr;
     }
-
     function getJobString(value, metadata, record, rowIndex, colIndex, store, view) {
         // get jobs array, map them to job-name array & convert to string
-        return findJobs(record).map(job => job.get('Name')).join('<br>');
+        return findJobs(record).map(function (job) { return job.get('Name'); }).join('<br>');
     }
-
     //var u = Ext.create('User', { ID: 9, Name: 'foo', Surname: 'barr' });
     //var o5 = Ext.create('Organisation', { ID: 5, Name: 'some 5 org 5' });
     //var o4 = Ext.create('Organisation', { ID: 4, Name: 'some 4 org 4' });
-    
-    
     ////u.setOrganisation(o5);
     //o4.Users().add(u);
     //console.log(o5);
     //orgs.add(o5);
     //orgs.add(o4);
-    
     //console.log(u);
     ////console.log(orgs);
     //users.add(u); 
     //orgs.sync();
     //users.sync();
-
-    function onAllStoresLoad(callback: () => void) {
+    function onAllStoresLoad(callback) {
         var loading = 0;
-        Ext.data.StoreManager.each(store => loading += store.isLoading());
+        Ext.data.StoreManager.each(function (store) { return loading += store.isLoading(); });
         if (!loading) {
             callback();
         }
     }
-
     function initGUI() {
-
-        var insertBox: Ext.window.IWindow = Ext.create('Ext.window.Window', {
+        var insertBox = Ext.create('Ext.window.Window', {
             title: 'Insert new user',
             width: 200,
             layout: 'fit',
@@ -124,7 +183,7 @@ Ext.onReady(() => {
                                     id: 'addJobButton',
                                     xtype: 'button',
                                     text: "add job",
-                                    handler: () => {
+                                    handler: function () {
                                         var fieldNumber = insertBox.items.getCount() + 1;
                                         insertBox.add({
                                             id: 'jobField' + fieldNumber,
@@ -142,20 +201,19 @@ Ext.onReady(() => {
             buttons: [
                 {
                     text: 'OK',
-                    handler: () => {
+                    handler: function () {
                         insertBox.hide();
                     }
-                }, {
+                },
+                {
                     text: 'Cancer',
-                    handler: () => {
+                    handler: function () {
                         insertBox.hide();
                     }
                 }
             ]
         });
-
-
-        var gridPanel: Ext.grid.IGridPanel = Ext.create('Ext.grid.Panel', {
+        var gridPanel = Ext.create('Ext.grid.Panel', {
             id: 'gridPanel',
             title: 'Users',
             store: users,
@@ -170,7 +228,7 @@ Ext.onReady(() => {
                 {
                     icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
                     text: 'Insert user',
-                    handler: () => {
+                    handler: function () {
                         resetToolbarAndButton();
                         insertBox.show();
                         //var u = <Ext.data.IModel>Ext.create('User', { ID: '', Name: '.', Surname: '' });
@@ -179,7 +237,6 @@ Ext.onReady(() => {
                         //var ce = <Ext.grid.plugin.ICellEditing>gridPanel.getPlugin('cellEditing');
                         //var cols = gridPanel.columns;
                         //for (var i = 0; i < cols.length; ++i) {
-                            
                         //    ce.startEdit(u);
                         //    u.set('Name', 'foo');
                         //    users.sync();
@@ -187,16 +244,18 @@ Ext.onReady(() => {
                         //users.sync();
                         //gridPanel.getView().refresh();
                     }
-                }, {
+                },
+                {
                     icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
                     text: 'Add job to user',
                     disabled: true,
-                    handler: () => jobOperationButtonHandler('add')
-                }, {
+                    handler: function () { return jobOperationButtonHandler('add'); }
+                },
+                {
                     icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
                     text: 'Remove job from user',
                     disabled: true,
-                    handler: () => jobOperationButtonHandler('remove')
+                    handler: function () { return jobOperationButtonHandler('remove'); }
                 }
             ],
             columns: [
@@ -210,9 +269,9 @@ Ext.onReady(() => {
                         icon: 'https://cdn3.iconfinder.com/data/icons/musthave/128/Delete.png',
                         tooltip: 'delete user',
                         tooltipType: 'title',
-                        handler: (grid: Ext.grid.IGridPanel, rowIndex: number) => {
+                        handler: function (grid, rowIndex) {
                             gridPanel.setLoading();
-                            var rec = grid.getStore().getAt(rowIndex)
+                            var rec = grid.getStore().getAt(rowIndex);
                             console.log(rec.get('Name'));
                             Ext.Ajax.request({
                                 url: '/Users',
@@ -231,15 +290,13 @@ Ext.onReady(() => {
             //width: 500,
             renderTo: Ext.getBody()
         });
-
-        var tb: Ext.toolbar.IToolbar = Ext.create('Ext.toolbar.Toolbar', {
+        var tb = Ext.create('Ext.toolbar.Toolbar', {
             hidden: true,
             vertical: true,
             width: 150,
             renderTo: Ext.getBody()
         });
-
-        var button: Ext.button.ISplit = Ext.create('Ext.button.Split', {
+        var button = Ext.create('Ext.button.Split', {
             id: "actionButton",
             text: 'Action',
             // on button click
@@ -249,7 +306,7 @@ Ext.onReady(() => {
                 items: [
                     {
                         text: 'Insert user',
-                        handler: () => {
+                        handler: function () {
                             resetToolbarAndButton();
                             tb.add({
                                 id: 'orgField',
@@ -261,7 +318,7 @@ Ext.onReady(() => {
                                 id: 'addJobButton',
                                 xtype: 'button',
                                 text: "add job",
-                                handler: () => {
+                                handler: function () {
                                     var fieldNumber = jobPanel.items.getCount() + 1;
                                     jobPanel.add({
                                         id: 'jobField' + fieldNumber,
@@ -272,24 +329,23 @@ Ext.onReady(() => {
                                     });
                                 }
                             });
-                            var jobPanel: Ext.panel.IPanel = Ext.create('Ext.panel.Panel', {
+                            var jobPanel = Ext.create('Ext.panel.Panel', {
                                 id: 'jobPanel'
                             });
                             tb.add(jobPanel);
                             tb.show();
                             button.setText("Insert user");
-
-                            button.setHandler(() => {
+                            button.setHandler(function () {
                                 gridPanel.setLoading(); // as if the view is updating
                                 var insertParams = {
                                     Name: getInputValueById('nameField'),
                                     Surname: getInputValueById('surnameField'),
                                     Organisation: getInputValueById('orgField')
-                                }
+                                };
                                 var jobPanelSize = jobPanel.items.getCount();
                                 var jobs = [];
                                 for (var i = 1; i <= jobPanelSize; ++i) {
-                                    jobs.push(getInputValueById('jobField' + i))
+                                    jobs.push(getInputValueById('jobField' + i));
                                 }
                                 insertParams['Jobs'] = jobs.join(',');
                                 Ext.Ajax.request({
@@ -299,36 +355,37 @@ Ext.onReady(() => {
                                     success: onAjaxSuccess,
                                     failure: onAjaxFail
                                 });
-                                resetToolbarAndButton()
+                                resetToolbarAndButton();
                             });
                         }
-                    }, {
+                    },
+                    {
                         text: 'Delete user',
-                        handler: () => {
+                        handler: function () {
                             resetToolbarAndButton();
                             tb.show();
                             button.setText("Delete user");
                             button.setHandler(onDeleteUserClick);
                         }
-                    }, {
+                    },
+                    {
                         text: 'Add job to user',
-                        handler: () => jobOperationButtonHandler('add')
-                    }, {
+                        handler: function () { return jobOperationButtonHandler('add'); }
+                    },
+                    {
                         text: 'Remove job from user',
-                        handler: () => jobOperationButtonHandler('remove')
+                        handler: function () { return jobOperationButtonHandler('remove'); }
                     }
                 ]
             }),
             renderTo: Ext.getBody()
         });
         resetToolbarAndButton();
-
         function initialButtonHander() {
             button.showMenu();
             button.setText("choose action");
         }
-
-       function resetToolbarAndButton() {
+        function resetToolbarAndButton() {
             tb.hide();
             tb.removeAll();
             tb.add({
@@ -345,10 +402,9 @@ Ext.onReady(() => {
             });
             button.setHandler(initialButtonHander);
             button.setText("Action");
-        };
-
+        }
+        ;
         resetToolbarAndButton();
-
         function onDeleteUserClick() {
             gridPanel.setLoading();
             Ext.Ajax.request({
@@ -363,12 +419,14 @@ Ext.onReady(() => {
             });
             resetToolbarAndButton();
         }
-
-        function jobOperationButtonHandler(action: string) {
-            var add: boolean;
-            if (action == 'add') add = true;
-            else if (action == 'remove') add = false;
-            else return;
+        function jobOperationButtonHandler(action) {
+            var add;
+            if (action == 'add')
+                add = true;
+            else if (action == 'remove')
+                add = false;
+            else
+                return;
             resetToolbarAndButton();
             tb.add({
                 id: 'jobField',
@@ -378,7 +436,7 @@ Ext.onReady(() => {
             });
             tb.show();
             button.setText(add ? 'Proceed' : 'Remove job');
-            button.setHandler(() => {
+            button.setHandler(function () {
                 gridPanel.setLoading();
                 Ext.Ajax.request({
                     url: '/Users/Jobs/' + getInputValueById('jobField'),
@@ -393,54 +451,47 @@ Ext.onReady(() => {
                 resetToolbarAndButton();
             });
         }
-
-        function getInputValueById(id: string) {
-            var table = <HTMLTableElement>Ext.get(id).dom;
-            table = <HTMLTableElement>table.tBodies[0];
-            var row = <HTMLTableRowElement>table.rows[0];
-            var cell = <HTMLTableCellElement>row.cells[1];
-            var input = <HTMLInputElement>cell.children[0];
+        function getInputValueById(id) {
+            var table = Ext.get(id).dom;
+            table = table.tBodies[0];
+            var row = table.rows[0];
+            var cell = row.cells[1];
+            var input = cell.children[0];
             return input.value;
         }
-
         function onAjaxSuccess(response, options) {
             reloadDataOneConnection();
             gridPanel.setLoading(false);
         }
-
         function onAjaxFail(response, options) {
-            Ext.Msg.alert('Error', 'Data was not delivered to the server', () => gridPanel.setLoading(false));
+            Ext.Msg.alert('Error', 'Data was not delivered to the server', function () { return gridPanel.setLoading(false); });
         }
-
         /* method 1: connection for each store */
         function reloadData() {
-            Ext.data.StoreManager.each((store: Ext.data.IStore) => store.load( () => gridPanel.getView().refresh() ));
+            Ext.data.StoreManager.each(function (store) { return store.load(function () { return gridPanel.getView().refresh(); }); });
         }
-
         /* method 2: one connection, all stores are updated after success */
         function reloadDataOneConnection() {
             Ext.Ajax.request({
                 url: '/Users',
                 method: 'GET',
-                success: res => {
+                success: function (res) {
                     var data = JSON.parse(res.responseText);
-                    Ext.data.StoreManager.eachKey((key: string, store: Ext.data.IStore) => {
+                    Ext.data.StoreManager.eachKey(function (key, store) {
                         if (key != 'ext-empty-store') {
                             store.loadData(data[key]);
                         }
                     });
-                    onAllStoresLoad(() => gridPanel.getView().refresh());
+                    onAllStoresLoad(function () { return gridPanel.getView().refresh(); });
                 },
                 failure: onAjaxFail
             });
         }
-        
     }
-
-    addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.keyCode == 13) Ext.get("actionButton").dom.click()
+    addEventListener('keydown', function (e) {
+        if (e.keyCode == 13)
+            Ext.get("actionButton").dom.click();
     });
-
     // testing
     //console.log(u);
     //console.log(u.get('Surname'));
@@ -449,3 +500,89 @@ Ext.onReady(() => {
     //console.log(orgs.getById(1).get('Name'));
     //console.log(o5.Users());
 });
+Ext.define('JobStore', {
+    extend: 'Ext.data.Store',
+    model: 'Models.Job',
+    storeId: 'Jobs',
+    //data: {
+    //    items: [
+    //        { 'ID': 1, 'Name': 'student' },
+    //        { 'ID': 2, 'Name': 'coder' },
+    //        { 'ID': 3, 'Name': 'slacker' }
+    //    ]
+    //},
+    //proxy: {
+    //    type: 'memory',
+    //    reader: {
+    //        type: 'json',
+    //        root: 'items'
+    //    }
+    //}
+    proxy: {
+        type: 'ajax',
+        url: '/Users/Jobs'
+    }
+});
+Ext.define('OrganisationStore', {
+    extend: 'Ext.data.Store',
+    model: 'Models.Organisation',
+    storeId: 'Organisations',
+    //data: {
+    //    items: [
+    //        { 'ID': 1, 'Name': 'ITMO' },
+    //        { 'ID': 2, 'Name': 'Some organization' },
+    //        { 'ID': 3, 'Name': 'Another organization' }
+    //    ]
+    //},
+    //proxy: {
+    //    type: 'memory',
+    //    reader: {
+    //        type: 'json',
+    //        root: 'items'
+    //    }
+    //}
+    proxy: {
+        type: 'ajax',
+        url: '/Users/Organisations'
+    }
+});
+Ext.define('UserJobStore', {
+    extend: 'Ext.data.Store',
+    model: 'Models.UserJob',
+    storeId: 'UserJobs',
+    //data: {
+    //    items: [
+    //        { 'ID': 1, 'UserID': 1, 'JobID': 3 },
+    //        { 'ID': 2, 'UserID': 1, 'JobID': 2 },
+    //        { 'ID': 3, 'UserID': 2, 'JobID': 1 }
+    //    ]
+    //},
+    //proxy: {
+    //    type: 'memory',
+    //    reader: {
+    //        type: 'json',
+    //        root: 'items'
+    //    }
+    //}
+    proxy: {
+        type: 'ajax',
+        url: '/Users/UserJobs'
+    }
+});
+Ext.define('UserStore', {
+    extend: 'Ext.data.Store',
+    model: 'Models.User',
+    storeId: 'Users',
+    //data: {
+    //    'items': [
+    //
+    //        { 'ID': 1, 'Name': 'Anton', 'Surname': 'Veselyev', 'OrganisationID': 1 },
+    //        { 'ID': 2, 'Name': 'Random', 'Surname': 'User', 'OrganisationID': 2 },
+    //    ]
+    //},
+    proxy: {
+        type: 'ajax',
+        url: '/Users/Users'
+    }
+});
+//# sourceMappingURL=script.js.map

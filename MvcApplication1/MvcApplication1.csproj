@@ -774,7 +774,15 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Content\Static\ExtJS.d.ts" />
+    <TypeScriptCompile Include="Content\Static\Models\Job.ts" />
+    <TypeScriptCompile Include="Content\Static\Models\Organisation.ts" />
+    <TypeScriptCompile Include="Content\Static\Models\User.ts" />
+    <TypeScriptCompile Include="Content\Static\Models\UserJob.ts" />
     <TypeScriptCompile Include="Content\Static\script.ts" />
+    <TypeScriptCompile Include="Content\Static\Stores\JobStore.ts" />
+    <TypeScriptCompile Include="Content\Static\Stores\OrganisationStore.ts" />
+    <TypeScriptCompile Include="Content\Static\Stores\UserJobStore.ts" />
+    <TypeScriptCompile Include="Content\Static\Stores\UserStore.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Database\Database.csproj">
