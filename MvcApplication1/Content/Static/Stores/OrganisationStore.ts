@@ -1,8 +1,6 @@
 ﻿Ext.define('Stores.OrganisationStore', {
     extend: 'Ext.data.Store',
-    id: 'orgStore',
     model: 'Models.Organisation',
-    storeId: 'Organisations',
     //data: {
     //    items: [
     //        { 'ID': 1, 'Name': 'ITMO' },

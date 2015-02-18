@@ -39,7 +39,7 @@ export function onAllStoresLoad(callback: () => void) {
 }
 
 export function getOrgName(value, metadata, record, rowIndex, colIndex, store, view) {
-    return Ext.StoreManager.lookup('orgStore').getById(record.get('OrganisationID')).get('Name');
+    return Ext.StoreManager.lookup('Organisations').getById(record.get('OrganisationID')).get('Name');
 }
 
 export function findJobs(user) {

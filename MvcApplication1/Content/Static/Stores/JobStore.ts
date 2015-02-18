@@ -1,7 +1,6 @@
 ﻿Ext.define('Stores.JobStore', {
     extend: 'Ext.data.Store',
     model: 'Models.Job',
-    storeId: 'Jobs',
     //data: {
     //    items: [
     //        { 'ID': 1, 'Name': 'student' },

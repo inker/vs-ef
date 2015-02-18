@@ -1,26 +1,37 @@
-/// <reference path="./ExtJS.d.ts"/>
+//import util = require('./util');
+// use kludge instead
+var util = {
+    onAllStoresLoad: function (callback: () => void) {
+        var loading = 0;
+        Ext.data.StoreManager.each(store => loading += store.isLoading());
+        if (!loading) {
+            callback();
+        }
+    }
+};
 
-import util = require('./util');
-
-Ext.onReady(() => {
-
-    console.log(Ext.ModelManager.getModel('Models.User'));
-
+Ext.onReady(() => {    
     var orgs: Ext.data.IStore = Ext.create('Stores.OrganisationStore', {
+        storeId: 'Organisations',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
     });
 
     var users: Ext.data.IStore = Ext.create('Stores.UserStore', {
+        storeId: 'Users',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
     });
 
     var jobs: Ext.data.IStore = Ext.create('Stores.JobStore', {
+        storeId: 'Jobs',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
     });
 
     var userJobs: Ext.data.IStore = Ext.create('Stores.UserJobStore', {
+        storeId: 'UserJobs',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
     }); 
+
+    console.log(userJobs);
 
     //Ext.StoreManager.lookup('organisationStore').load();
 
@@ -41,12 +52,12 @@ Ext.onReady(() => {
     //orgs.sync();
     //users.sync();
 
-
-
     function initGUI() {
-
-        var gridPanel: Ext.grid.IGridPanel = Ext.create('Views.UserGrid');
-         
+        console.log(Ext.StoreManager.lookup('Users').storeId);
+        console.log('initializing gui');
+        var gridPanel: Ext.grid.IGridPanel = Ext.create('Views.UserGrid', {
+        });
+        console.log('grid should have been initialized');
         //var tb: Ext.toolbar.IToolbar = Ext.create('Ext.toolbar.Toolbar', {
         //    hidden: true,
         //    vertical: true,
@@ -209,16 +220,7 @@ Ext.onReady(() => {
         //    });
         //}
 
-        function getInputValueById(id: string) {
-            var table = <HTMLTableElement>Ext.get(id).dom;
-            table = <HTMLTableElement>table.tBodies[0];
-            var row = <HTMLTableRowElement>table.rows[0];
-            var cell = <HTMLTableCellElement>row.cells[1];
-            var input = <HTMLInputElement>cell.children[0];
-            return input.value;
-        }
-        
-        
+
     }
 
     addEventListener('keydown', (e: KeyboardEvent) => {

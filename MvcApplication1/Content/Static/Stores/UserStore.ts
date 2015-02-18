@@ -1,7 +1,6 @@
 ﻿Ext.define('Stores.UserStore', {
     extend: 'Ext.data.Store',
     model: 'Models.User',
-    storeId: 'Users',
     //data: {
     //    'items': [
     //
