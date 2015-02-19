@@ -17,6 +17,17 @@
     //}
     proxy: {
         type: 'ajax',
-        url: '/Users/Organisations'
+        api: {
+            create: '/Users/Organisations',
+            read: '/Users/Organisations',
+            update: undefined,
+            destroy: '/Users/Organisations'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'POST',
+            destroy: 'DELETE'
+        }
     }
 }); 

@@ -17,6 +17,17 @@
     //}
     proxy: {
         type: 'ajax',
-        url: '/Users/UserJobs'
+        api: {
+            create: '/Users/UserJobs',
+            read: '/Users/UserJobs',
+            update: undefined,
+            destroy: '/Users/UserJobs'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'POST',
+            destroy: 'DELETE'
+        }
     }
 });

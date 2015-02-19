@@ -62,6 +62,7 @@ Ext.define('Views.InsertUserWindow', {
                             id: 'addJobInputButton',
                             itemId: 'addJobInputButton',
                             xtype: 'button',
+                            icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
                             name: 'addJobInputButton',
                             text: 'add job',
                             handler: () => {
@@ -86,9 +87,9 @@ Ext.define('Views.InsertUserWindow', {
     ],
     buttons: [
         {
+            icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Check.png',
             text: 'OK',
             handler: () => {
-
                 var insertParams = {
                     Name: getInputValueById2('nameField'),
                     Surname: getInputValueById2('surnameField'),
@@ -100,16 +101,49 @@ Ext.define('Views.InsertUserWindow', {
                     jobArr.push(getInputValueById2('job' + i));
                 }
                 insertParams['Jobs'] = jobArr.join(',');
-                Ext.Ajax.request({
-                    url: '/Users',
-                    params: insertParams,
-                    method: 'POST',
-                    success: util2.onAjaxSuccess,
-                    failure: util2.onAjaxFail
+                //Ext.Ajax.request({
+                //    url: '/Users',
+                //    params: insertParams,
+                //    method: 'POST',
+                //    success: util2.onAjaxSuccess,
+                //    failure: util2.onAjaxFail
+                //});
+                var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
+                var users = Ext.StoreManager.lookup('Users');
+                var orgs = Ext.StoreManager.lookup('Organisations');
+                var orgName = getInputValueById2('orgField');
+                var orgCollection = orgs.query('Name', orgName, false, false, true);
+                var org = (orgCollection.getCount()) ? orgCollection.first() : Ext.create('Organisation', { Name: orgName });
+
+                var user: Ext.data.IModel = Ext.create('User', {
+                    Name: getInputValueById2('nameField'),
+                    Surname: getInputValueById2('surnameField'),
+                    Organisation: org
                 });
+
+                var jobs = Ext.StoreManager.lookup('Jobs');
+                var jobCollection = jobs.query('Name', orgName, false, false, true);
+                var userJobs = Ext.StoreManager.lookup('UserJobs');
+                jobArr.forEach(jobName => {
+                    var jobCollection = orgs.query('Name', orgName, false, false, true);
+                    var job: Ext.data.IModel = (jobCollection.getCount()) ? jobCollection.first() : Ext.create('Job', { Name: jobName });
+                    
+                    var userJob = Ext.create('UserJob', { UserID: user.getId(), JobID: job.getId() });
+                    jobs.load(job);
+                    userJobs.load(userJob);
+                });
+                
+                users.load(user);
+                orgs.load(org);
+                users.sync();
+                orgs.sync();
+                jobs.sync();
+                userJobs.sync();
+                
                 Ext.WindowManager.get('insertUserWindow').destroy();
             }
         }, {
+            icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Redo.png',
             text: 'Cancel',
             handler: () =>  Ext.WindowManager.get('insertUserWindow').destroy()
         }

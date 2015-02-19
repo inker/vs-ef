@@ -201,6 +201,50 @@ namespace DBManager
             }
         }
 
+        public static List<UserCustom> SelectUsers()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                var list = ctx.Users
+                    .Select(i => new UserCustom { ID = i.ID, Name = i.Name, Surname = i.Surname, OrganisationID = i.OrganisationID })
+                    .ToList();
+                return list;
+            }
+        }
+
+        public static void InsertUsers(User[] users)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                ctx.Users.AddRange(users.ToList());
+                ctx.SaveChanges();
+            }
+        }
+
+        public static void DeleteUsers(UserCustom[] users)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                foreach (var user in users)
+                {
+                    var usr = ctx.Users.SingleOrDefault(u => u.ID == user.ID);
+                    ctx.Users.Remove(usr);
+                }
+                
+                //ctx.Users.RemoveRange(users.ToList());
+                ctx.SaveChanges();
+            }
+        }
+
+        public static void InsertOrganisation(long ID, string Name)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                ctx.Organisations.Add(new Organisation { ID = ID, Name = Name});
+                ctx.SaveChanges();
+            }
+        }
+
         public static void InsertUserConsole()
         {
             Console.WriteLine("enter the user's name:");
@@ -220,6 +264,7 @@ namespace DBManager
             foreach (var j in jobs) Console.Write(j + ", ");
             InsertUser(name, surname, org, jobs.ToArray());
         }
+    
     }
 }
 

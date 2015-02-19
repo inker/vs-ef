@@ -9,6 +9,27 @@ function getInputValueById(id: string) {
     return input.value;
 }
 
+function getSelectedRows() {
+    var sel: Ext.selection.IRowModel = Ext.getCmp('userGrid').getSelectionModel();
+    return sel.getSelection() 
+}
+
+function handleSelection() {
+    var num = getSelectedRows().length;
+    if (num > 1) {
+        Ext.getCmp('deleteSelectedButton').setDisabled(false);
+        Ext.getCmp('addJobButton').setDisabled(true)
+        Ext.getCmp('removeJobButton').setDisabled(true)
+    } else {
+        [
+            Ext.getCmp('deleteSelectedButton'),
+            Ext.getCmp('addJobButton'),
+            Ext.getCmp('removeJobButton')
+        ].forEach(button => button.setDisabled(!num));
+    }
+
+}
+
 var findJobs = function (user) {
     var jobArr = [];
     console.log('job: ');
@@ -24,7 +45,6 @@ var findJobs = function (user) {
 };
 
 var util2 = {
-
     onAllStoresLoad: function (callback: () => void) {
         var loading = 0;
         Ext.data.StoreManager.each(store => loading += store.isLoading());
@@ -74,6 +94,7 @@ var util2 = {
 Ext.define('Views.UserGrid', {
     extend: 'Ext.grid.Panel',
     id: 'userGrid',
+    getId: () => this.id,
     title: 'Users',
     store: Ext.StoreManager.lookup('Users'),
     multiSelect: true,
@@ -91,25 +112,11 @@ Ext.define('Views.UserGrid', {
                 Ext.create('Views.InsertUserWindow', { id: 'insertUserWindow' }).show();
             }
         }, {
-            icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
+            id: 'deleteSelectedButton',
+            icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
             text: 'Delete selected users',
             disabled: true,
-            handler: () => {
-                var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
-                var selectedRows = ug.getSelectionModel().getSelection();
-                selectedRows.forEach(row => {
-                    Ext.Ajax.request({
-                        url: '/Users',
-                        params: {
-                            Name: row.get('Name'),
-                            Surname: row.get('Surname')
-                        },
-                        method: 'DELETE',
-                        success: util2.onAjaxSuccess,
-                        failure: util2.onAjaxFail
-                    });
-                });
-            }
+            handler: deleteSelectedHandler
         }, {
             id: 'addJobButton',
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
@@ -138,6 +145,7 @@ Ext.define('Views.UserGrid', {
             //    });
             //}
         }, {
+            id: 'removeJobButton',
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
             text: 'Remove job from user',
             disabled: true,
@@ -159,16 +167,16 @@ Ext.define('Views.UserGrid', {
                     grid.setLoading();
                     var rec = grid.getStore().getAt(rowIndex)
                     console.log(rec.get('Name'));
-                    Ext.Ajax.request({
-                        url: '/Users',
-                        params: {
-                            Name: rec.get('Name'),
-                            Surname: rec.get('Surname')
-                        },
-                        method: 'DELETE',
-                        success: util2.onAjaxSuccess,
-                        failure: util2.onAjaxFail
-                    });
+                    //Ext.Ajax.request({
+                    //    url: '/Users',
+                    //    params: {
+                    //        Name: rec.get('Name'),
+                    //        Surname: rec.get('Surname')
+                    //    },
+                    //    method: 'DELETE',
+                    //    success: util2.onAjaxSuccess,
+                    //    failure: util2.onAjaxFail
+                    //});
                 }
             }]
         }
@@ -176,15 +184,34 @@ Ext.define('Views.UserGrid', {
     selType: 'rowmodel',
     selModel: {
         listeners: {
-            select: () => {
-                Ext.getCmp('addJobButton').setDisabled(false);
-            }
+            select: handleSelection,
+            deselect: handleSelection
         },
         model: 'MULTI'
     },
     //width: 500,
     renderTo: Ext.getBody()
 });
+
+function deleteSelectedHandler() {
+    var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
+    var users = Ext.StoreManager.lookup('Users');
+    var selectedRows = ug.getSelectionModel().getSelection();
+    selectedRows.forEach(row => {
+        users.remove(row); // removes from the grid too
+        //Ext.Ajax.request({
+        //    url: '/Users',
+        //    params: {
+        //        Name: row.get('Name'),
+        //        Surname: row.get('Surname')
+        //    },
+        //    method: 'DELETE',
+        //    success: util2.onAjaxSuccess,
+        //    failure: util2.onAjaxFail
+        //});
+    });
+    users.sync(); // to sync between the proxy & the database
+}
 
 function jobOperationButtonHandler(action: string) {
     //var add: boolean;

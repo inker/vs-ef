@@ -10,7 +10,7 @@ var util = {
     }
 };
 
-Ext.onReady(() => {    
+Ext.onReady(() => {
     var orgs: Ext.data.IStore = Ext.create('Stores.OrganisationStore', {
         storeId: 'Organisations',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
@@ -29,7 +29,7 @@ Ext.onReady(() => {
     var userJobs: Ext.data.IStore = Ext.create('Stores.UserJobStore', {
         storeId: 'UserJobs',
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
-    }); 
+    });
 
     console.log(userJobs);
 
@@ -38,17 +38,16 @@ Ext.onReady(() => {
     //var u = Ext.create('User', { ID: 9, Name: 'foo', Surname: 'barr' });
     //var o5 = Ext.create('Organisation', { ID: 5, Name: 'some 5 org 5' });
     //var o4 = Ext.create('Organisation', { ID: 4, Name: 'some 4 org 4' });
-    
-    
+
     ////u.setOrganisation(o5);
     //o4.Users().add(u);
     //console.log(o5);
     //orgs.add(o5);
     //orgs.add(o4);
-    
+
     //console.log(u);
     ////console.log(orgs);
-    //users.add(u); 
+    //users.add(u);
     //orgs.sync();
     //users.sync();
 
@@ -219,8 +218,6 @@ Ext.onReady(() => {
         //        resetToolbarAndButton();
         //    });
         //}
-
-
     }
 
     addEventListener('keydown', (e: KeyboardEvent) => {

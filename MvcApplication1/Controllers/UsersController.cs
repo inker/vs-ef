@@ -1,25 +1,22 @@
 ﻿using DBManager;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace MvcApplication1.Controllers
 {
     public class UsersController : Controller
     {
-        [HttpGet]
-        [ActionName("Index")]
-        public ActionResult GetEverything()
-        {
-            var Users = DBInteraction.GetAllUsersRaw();
-            var Organisations = DBInteraction.GetAllOrganizationsRaw();
-            var Jobs = DBInteraction.GetAllJobsRaw();
-            var UserJobs = DBInteraction.GetAllUserJobsRaw();
-            var obj = new { Users, Organisations, Jobs, UserJobs };
-            return Json(obj, JsonRequestBehavior.AllowGet);
-        }
+        //[HttpGet]
+        //[ActionName("Index")]
+        //public ActionResult GetEverything()
+        //{
+        //    var Users = DBInteraction.GetAllUsersRaw();
+        //    var Organisations = DBInteraction.GetAllOrganizationsRaw();
+        //    var Jobs = DBInteraction.GetAllJobsRaw();
+        //    var UserJobs = DBInteraction.GetAllUserJobsRaw();
+        //    var obj = new { Users, Organisations, Jobs, UserJobs };
+        //    return Json(obj, JsonRequestBehavior.AllowGet);
+        //}
 
         [HttpGet]
         [ActionName("Users")]
@@ -50,20 +47,44 @@ namespace MvcApplication1.Controllers
             return Json(userJobs, JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpPost]
+        //[ActionName("Index")]
+        //public ActionResult InsertUser(string Name, string Surname, string Organisation, string Jobs)
+        //{
+        //    var jobArr = (string.IsNullOrWhiteSpace(Jobs)) ? new string[] { } : Jobs.Split(',').Where(job => job.Length > 0).ToArray();
+        //    DBInteraction.InsertUser(Name, Surname, Organisation, jobArr);
+        //    return new HttpStatusCodeResult(200);
+        //}
+
+        [HttpGet]
+        [ActionName("Index")]
+        public ActionResult GetUsers()
+        {
+            var obj = DBInteraction.SelectUsers();
+            return Json(obj, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         [ActionName("Index")]
-        public ActionResult InsertUser(string Name, string Surname, string Organisation, string Jobs)
+        public ActionResult InsertUsers(DBManager.Models.User[] users)
         {
-            var jobArr = (string.IsNullOrWhiteSpace(Jobs)) ? new string[]{} : Jobs.Split(',').Where(job => job.Length > 0).ToArray();
-            DBInteraction.InsertUser(Name, Surname, Organisation, jobArr);
-            return new HttpStatusCodeResult(200);
+            DBInteraction.InsertUsers(users);
+            return new HttpStatusCodeResult(200); 
         }
+
+        //[HttpDelete]
+        //[ActionName("Index")]
+        //public ActionResult DeleteUser(string Name, string Surname)
+        //{
+        //    DBInteraction.RemoveUser(Name, Surname);
+        //    return new HttpStatusCodeResult(200);
+        //}
 
         [HttpDelete]
         [ActionName("Index")]
-        public ActionResult DeleteUser(string Name, string Surname)
+        public ActionResult DeleteUser(UserCustom[] users)
         {
-            DBInteraction.RemoveUser(Name, Surname);
+            DBInteraction.DeleteUsers(users);
             return new HttpStatusCodeResult(200);
         }
 
@@ -115,7 +136,6 @@ namespace MvcApplication1.Controllers
         public ActionResult Bar()
         {
             return Content("bar!");
-        } 
-
+        }
     }
 }
