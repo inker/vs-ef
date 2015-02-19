@@ -212,11 +212,13 @@ namespace DBManager
             }
         }
 
-        public static void InsertUsers(User[] users)
+        public static void InsertUsers(UserCustom[] users)
         {
             using (var ctx = new SimpleContext())
             {
-                ctx.Users.AddRange(users.ToList());
+                ctx.Users
+                    .AddRange(users.Select(u => new User { ID = u.ID, Name = u.Name, Surname = u.Surname, OrganisationID = u.OrganisationID })
+                    .ToList());
                 ctx.SaveChanges();
             }
         }
@@ -236,11 +238,11 @@ namespace DBManager
             }
         }
 
-        public static void InsertOrganisation(long ID, string Name)
+        public static void InsertOrganisation(OrganisationCustom[] orgs)
         {
             using (var ctx = new SimpleContext())
             {
-                ctx.Organisations.Add(new Organisation { ID = ID, Name = Name});
+                ctx.Organisations.AddRange(orgs.Select(o => new Organisation { ID = o.ID, Name = o.Name}));
                 ctx.SaveChanges();
             }
         }

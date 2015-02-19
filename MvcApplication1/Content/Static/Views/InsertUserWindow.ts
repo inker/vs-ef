@@ -129,12 +129,12 @@ Ext.define('Views.InsertUserWindow', {
                     var job: Ext.data.IModel = (jobCollection.getCount()) ? jobCollection.first() : Ext.create('Job', { Name: jobName });
                     
                     var userJob = Ext.create('UserJob', { UserID: user.getId(), JobID: job.getId() });
-                    jobs.load(job);
-                    userJobs.load(userJob);
+                    jobs.add(job);
+                    userJobs.add(userJob);
                 });
                 
-                users.load(user);
-                orgs.load(org);
+                users.add(user);
+                orgs.add(org);
                 users.sync();
                 orgs.sync();
                 jobs.sync();

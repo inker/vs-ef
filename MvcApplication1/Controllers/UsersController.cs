@@ -1,4 +1,5 @@
 ﻿using DBManager;
+using DBManager.Models;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -66,7 +67,7 @@ namespace MvcApplication1.Controllers
 
         [HttpPost]
         [ActionName("Index")]
-        public ActionResult InsertUsers(DBManager.Models.User[] users)
+        public ActionResult InsertUsers(UserCustom[] users)
         {
             DBInteraction.InsertUsers(users);
             return new HttpStatusCodeResult(200); 

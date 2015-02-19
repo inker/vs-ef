@@ -28,7 +28,12 @@
             read: 'GET',
             update: 'POST',
             destroy: 'DELETE'
-        }
+        },
+        writer: {
+            type: 'json',
+            allowSingle: false,
+            writeAllFields: true,
+        },
     }
     
 }); 

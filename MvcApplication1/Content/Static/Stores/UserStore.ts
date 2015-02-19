@@ -24,6 +24,7 @@
         },
         writer: {
             type: 'json',
+            allowSingle: false,
             writeAllFields: true,
         },
     }
