@@ -108,22 +108,79 @@ namespace MvcApplication1.Controllers
 
         [HttpPost]
         [ActionName("Jobs")]
-        public ActionResult AddJob(string id, string Name, string Surname)
+        public ActionResult AddJob(JobCustom[] jobs)
         {
-            if (!string.IsNullOrWhiteSpace(id))
-            {
-                DBInteraction.AddJobToUser(Name, Surname, id);
-            }
+            DBInteraction.InsertJobs(jobs);
+            return new HttpStatusCodeResult(200);
+        }
+
+        //[HttpDelete]
+        //[ActionName("Jobs")]
+        //public ActionResult RemoveJob(JobCustom[] jobs)
+        //{
+        //    DBInteraction.Job(Name, Surname, id);
+        //    return new HttpStatusCodeResult(200);
+        //}
+
+        [HttpDelete]
+        [ActionName("Jobs")]
+        public ActionResult DeleteJobs(JobCustom[] jobs)
+        {
+            DBInteraction.DeleteJobs(jobs);
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpPost]
+        [ActionName("UserJobs")]
+        public ActionResult AddJob(UserJobCustom[] userJobs)
+        {
+            DBInteraction.InsertUserJobs(userJobs);
             return new HttpStatusCodeResult(200);
         }
 
         [HttpDelete]
-        [ActionName("Jobs")]
-        public ActionResult RemoveJob(string id, string Name, string Surname)
+        [ActionName("UserJobs")]
+        public ActionResult DeleteUserJobs(UserJobCustom[] userJobs)
         {
-            DBInteraction.RemoveJobFromUser(Name, Surname, id);
+            DBInteraction.DeleteUserJobs(userJobs);
             return new HttpStatusCodeResult(200);
         }
+
+
+        [HttpPost]
+        [ActionName("Organisations")]
+        public ActionResult AddJob(OrganisationCustom[] orgs)
+        {
+            DBInteraction.InsertOrganisations(orgs);
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpDelete]
+        [ActionName("Organisations")]
+        public ActionResult DeleteOrganisations(OrganisationCustom[] orgs)
+        {
+            DBInteraction.DeleteOrganisations(orgs);
+            return new HttpStatusCodeResult(200);
+        }
+
+        //[HttpPost]
+        //[ActionName("Organisations")]
+        //public ActionResult AddOrganisation(string id, string Name, string Surname)
+        //{
+        //    if (!string.IsNullOrWhiteSpace(id))
+        //    {
+        //        DBInteraction.AddJobToUser(Name, Surname, id);
+        //    }
+        //    return new HttpStatusCodeResult(200);
+        //}
+
+        //[HttpDelete]
+        //[ActionName("Organisations")]
+        //public ActionResult RemoveOrganisation(string id, string Name, string Surname)
+        //{
+        //    DBInteraction.RemoveJobFromUser(Name, Surname, id);
+        //    return new HttpStatusCodeResult(200);
+        //}
 
         // for testing purposes
 

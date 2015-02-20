@@ -26,6 +26,8 @@
         name: 'UserJobs',
         primaryKey: 'ID',
         foreignKey: 'UserID'
-    }
+    },
+    idgen: 'sequential',
+
 
 }); 

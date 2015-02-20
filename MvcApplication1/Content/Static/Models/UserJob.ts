@@ -10,5 +10,6 @@
         { type: 'presence', field: 'ID' },
         { type: 'presence', field: 'UserID' },
         { type: 'presence', field: 'JobID' }
-    ]
+    ],
+    idgen: 'sequential',
 });

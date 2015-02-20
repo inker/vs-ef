@@ -113,34 +113,44 @@ Ext.define('Views.InsertUserWindow', {
                 var orgs = Ext.StoreManager.lookup('Organisations');
                 var orgName = getInputValueById2('orgField');
                 var orgCollection = orgs.query('Name', orgName, false, false, true);
-                var org = (orgCollection.getCount()) ? orgCollection.first() : Ext.create('Organisation', { Name: orgName });
+                var org = (orgCollection.getCount()) ? orgCollection.first() : Ext.create('Models.Organisation', { Name: orgName });
 
-                var user: Ext.data.IModel = Ext.create('User', {
-                    Name: getInputValueById2('nameField'),
-                    Surname: getInputValueById2('surnameField'),
-                    Organisation: org
-                });
-
-                var jobs = Ext.StoreManager.lookup('Jobs');
-                var jobCollection = jobs.query('Name', orgName, false, false, true);
-                var userJobs = Ext.StoreManager.lookup('UserJobs');
-                jobArr.forEach(jobName => {
-                    var jobCollection = orgs.query('Name', orgName, false, false, true);
-                    var job: Ext.data.IModel = (jobCollection.getCount()) ? jobCollection.first() : Ext.create('Job', { Name: jobName });
-                    
-                    var userJob = Ext.create('UserJob', { UserID: user.getId(), JobID: job.getId() });
-                    jobs.add(job);
-                    userJobs.add(userJob);
-                });
-                
-                users.add(user);
                 orgs.add(org);
-                users.sync();
-                orgs.sync();
-                jobs.sync();
-                userJobs.sync();
-                
-                Ext.WindowManager.get('insertUserWindow').destroy();
+                orgs.sync({
+                    callback: () => {
+                        var user: Ext.data.IModel = Ext.create('Models.User', {
+                            Name: getInputValueById2('nameField'),
+                            Surname: getInputValueById2('surnameField'),
+                            Organisation: org
+                        });
+
+                        users.add(user);
+                        users.sync({
+                            callback: () => {
+                                var jobs = Ext.StoreManager.lookup('Jobs');
+                                var jobCollection = jobs.query('Name', orgName, false, false, true);
+                                var userJobs = Ext.StoreManager.lookup('UserJobs');
+                                jobArr.forEach(jobName => {
+                                    var jobCollection = jobs.query('Name', jobName, false, false, true);
+                                    var job: Ext.data.IModel = (jobCollection.getCount()) ? jobCollection.first() : Ext.create('Models.Job', { Name: jobName });
+                                    jobs.add(job);
+                                    jobs.sync({
+                                        callback: () => {
+                                            var userJob = Ext.create('Models.UserJob', { UserID: user.getId(), JobID: job.getId() });
+                                            userJobs.add(userJob);
+                                            userJobs.sync();
+                                        }
+                                    });
+                                    
+                                }); 
+                                
+
+                                Ext.WindowManager.get('insertUserWindow').destroy();
+                            }
+                        });
+  
+                    }
+                });
             }
         }, {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Redo.png',

@@ -31,6 +31,9 @@ Ext.onReady(() => {
         autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
     });
 
+    //users.add(Ext.create('Models.USer
+    //setTimeout(() => users.sync(), 2000);
+
     console.log(userJobs);
 
     //Ext.StoreManager.lookup('organisationStore').load();
@@ -220,9 +223,9 @@ Ext.onReady(() => {
         //}
     }
 
-    addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.keyCode == 13) Ext.get("actionButton").dom.click()
-    });
+    //addEventListener('keydown', (e: KeyboardEvent) => {
+    //    if (e.keyCode == 13) Ext.get("actionButton").dom.click()
+    //});
 
     // testing
     //console.log(u);

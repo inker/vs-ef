@@ -13,5 +13,7 @@
         name: 'Users',
         primaryKey: 'ID',
         foreignKey: 'OrganisationID',
-    }
+    },
+    idgen: 'sequential',
+
 });  

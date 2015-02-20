@@ -163,7 +163,8 @@ namespace DBManager
         {
             using (var ctx = new SimpleContext())
             {
-                return ctx.UserJobs.Select(uj => new UserJobCustom { ID = uj.ID, UserID = uj.User.ID, JobID = uj.Job.ID }).ToList();
+                var ujs = ctx.UserJobs.ToList();
+                return ujs.Select(uj => new UserJobCustom { ID = uj.ID, UserID = uj.User.ID, JobID = uj.Job.ID }).ToList();
             }
         }
 
@@ -238,7 +239,18 @@ namespace DBManager
             }
         }
 
-        public static void InsertOrganisation(OrganisationCustom[] orgs)
+        public static List<OrganisationCustom> SelectOrganisations()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                var list = ctx.Organisations
+                    .Select(i => new OrganisationCustom { ID = i.ID, Name = i.Name })
+                    .ToList();
+                return list;
+            }
+        }
+
+        public static void InsertOrganisations(OrganisationCustom[] orgs)
         {
             using (var ctx = new SimpleContext())
             {
@@ -246,6 +258,112 @@ namespace DBManager
                 ctx.SaveChanges();
             }
         }
+
+        public static void DeleteOrganisations(OrganisationCustom[] orgs)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                foreach (var org in orgs)
+                {
+                    var o = ctx.Organisations.SingleOrDefault(i => i.ID == org.ID);
+                    ctx.Organisations.Remove(o);
+                }
+
+                //ctx.Users.RemoveRange(users.ToList());
+                ctx.SaveChanges();
+            }
+        }
+
+        public static List<JobCustom> SelectJobs()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                var list = ctx.Jobs
+                    .Select(i => new JobCustom { ID = i.ID, Name = i.Name })
+                    .ToList();
+                return list;
+            }
+        }
+
+        public static void InsertJobs(JobCustom[] jobs)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                ctx.Database.Connection.Open();
+                ctx.Database.ExecuteSqlCommand("SET IDENTITY_INSERT [testApplication].[dbo].[Jobs] ON", new object[] { });
+                ctx.Jobs.AddRange(jobs.Select(o => new Job { ID = o.ID, Name = o.Name }));
+                ctx.Database.ExecuteSqlCommand("SET IDENTITY_INSERT [testApplication].[dbo].[Jobs] OFF", new object[] { });
+                ctx.SaveChanges();
+                ctx.Database.Connection.Close();
+            }
+        }
+
+        public static void DeleteJobs(JobCustom[] jobs)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                foreach (var job in jobs)
+                {
+                    var j = ctx.Organisations.SingleOrDefault(i => i.ID == job.ID);
+                    ctx.Organisations.Remove(j);
+                }
+
+                //ctx.Users.RemoveRange(users.ToList());
+                ctx.SaveChanges();
+            }
+        }
+
+        public static List<UserJobCustom> SelectUserJobs()
+        {
+            using (var ctx = new SimpleContext())
+            {
+                var list = ctx.UserJobs
+                    .Select(i => new UserJobCustom { ID = i.ID, UserID = i.User.ID, JobID = i.Job.ID })
+                    .ToList();
+                return list;
+            }
+        }
+
+        public static void InsertUserJobs(UserJobCustom[] userJobs)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                ctx.UserJobs.AddRange(userJobs.Select(i => {
+                    var user = ctx.Users.SingleOrDefault(u => u.ID == i.UserID);
+                    if (user == null)
+                    {
+                        throw new Exception("user doesn't exist");
+                        // not necessary to add the job as it is later implicitly added via UserJob addition (below)
+                        //ctx.Jobs.Add(job); 
+                    }
+                    var job = ctx.Jobs.SingleOrDefault(j => j.ID == i.JobID);
+                    if (job == null)
+                    {
+                        //job = new Job { Name = i. };
+                        // not necessary to add the job as it is later implicitly added via UserJob addition (below)
+                        //ctx.Jobs.Add(job); 
+                    }
+                    return new UserJob { ID = i.ID, User = user, Job = job };
+                }));
+                ctx.SaveChanges();
+            }
+        }
+
+        public static void DeleteUserJobs(UserJobCustom[] userJobs)
+        {
+            using (var ctx = new SimpleContext())
+            {
+                foreach (var userJob in userJobs)
+                {
+                    var uj = ctx.UserJobs.SingleOrDefault(i => i.ID == userJob.ID);
+                    ctx.UserJobs.Remove(uj);
+                }
+
+                //ctx.Users.RemoveRange(users.ToList());
+                ctx.SaveChanges();
+            }
+        }
+           
 
         public static void InsertUserConsole()
         {

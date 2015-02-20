@@ -122,28 +122,14 @@ Ext.define('Views.UserGrid', {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Add.png',
             text: 'Add job to user',
             disabled: true,
-            //handler: () => {
-            //    var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
-            //    var selectedRows = ug.getSelectionModel().getSelection();
-            //    var insertParams = {
-            //        Name: getInputValueById('nameField'),
-            //        Surname: getInputValueById('surnameField'),
-            //        Organisation: getInputValueById('orgField')
-            //    }
-            //    var jobPanelSize = jobPanel.items.getCount();
-            //    var jobs = [];
-            //    for (var i = 1; i <= jobPanelSize; ++i) {
-            //        jobs.push(getInputValueById('jobField' + i))
-            //    }
-            //    insertParams['Jobs'] = jobs.join(',');
-            //    Ext.Ajax.request({
-            //        url: '/Users',
-            //        params: insertParams,
-            //        method: 'POST',
-            //        success: util2.onAjaxSuccess,
-            //        failure: util2.onAjaxFail
-            //    });
-            //}
+            handler: () => {
+                var sel = getSelectedRows()[0];
+                Ext.create('Views.AddJobsWindow', {
+                    id: 'addJobsWindow',
+                    title: sel.get('Name') + ' ' + sel.get('Surname') + ' (id' + sel.getId() + ')'
+                }).show();
+            }
+
         }, {
             id: 'removeJobButton',
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
