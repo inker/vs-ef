@@ -93,6 +93,7 @@ Ext.define('Views.AddJobsWindow', {
                     if (jobCollection.getCount()) {
                         job = jobCollection.first();
                     } else {
+                        // use extjs connections, should sync all stores
                         job = Ext.create('Models.Job', { Name: jobName });
                         jobs.add(job);
                         
