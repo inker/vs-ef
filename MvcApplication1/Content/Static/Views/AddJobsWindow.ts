@@ -87,24 +87,24 @@ Ext.define('Views.AddJobsWindow', {
                 var userJobs = Ext.StoreManager.lookup('UserJobs');
                 console.log(jobArr);
                 var jobObjs: Ext.data.IModel[] = [];
-                jobArr.forEach(jobName => {
-                    var jobCollection = jobs.query('Name', jobName, false, false, true);
-                    var job: Ext.data.IModel;
-                    if (jobCollection.getCount()) {
-                        job = jobCollection.first();
-                    } else {
-                        // use extjs connections, should sync all stores
-                        job = Ext.create('Models.Job', { Name: jobName });
-                        jobs.add(job);
+                //jobArr.forEach(jobName => {
+                //    var jobCollection = jobs.query('Name', jobName, false, false, true);
+                //    var job: Ext.data.IModel;
+                //    if (jobCollection.getCount()) {
+                //        job = jobCollection.first();
+                //    } else {
+                //        // use extjs connections, should sync all stores
+                //        job = Ext.create('Models.Job', { Name: jobName });
+                //        jobs.add(job);
                         
-                        console.log('added job: ');
-                        console.log(job);
-                    }
-                    jobObjs.push(job);
+                //        console.log('added job: ');
+                //        console.log(job);
+                //    }
+                //    jobObjs.push(job);
                     
-                });
-                jobs.sync({
-                    callback: () => {
+                //});
+                //jobs.sync({
+                //    callback: () => {
                         jobObjs.forEach(job => {
                             console.log('adding userjob...');
                             var userJob = Ext.create('Models.UserJob', { UserID: user.getId(), JobID: job.getId() });
@@ -112,8 +112,8 @@ Ext.define('Views.AddJobsWindow', {
                             userJobs.add(userJob);
                         });
                         userJobs.sync();
-                    }
-                });
+                //    }
+                //});
                 
 
                 Ext.WindowManager.get('addJobsWindow').destroy();
