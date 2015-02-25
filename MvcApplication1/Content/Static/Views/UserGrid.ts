@@ -81,6 +81,7 @@ Ext.define('Views.UserGrid', {
                 var sel = getSelectedRows()[0];
                 Ext.create('Views.AddJobsWindow', {
                     id: 'addJobsWindow',
+                    userId: sel.getId(),
                     title: sel.get('Name') + ' ' + sel.get('Surname') + ' (id' + sel.getId() + ')'
                 }).show();
             }

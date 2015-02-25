@@ -129,60 +129,13 @@ function syncOrgDescendants(org: Ext.data.IModel) {
     syncAndLoad(users, () => {
         var index = users.findBy((i: Ext.data.IModel) => i.get('Name') == userName && i.get('Surname') == userSurname);
         user = users.getAt(index);
-        syncUserDescendants(user);
+        syncAddedJobs(user, Ext.WindowManager.get('insertUserWindow'));
     });
-}
-
-function syncUserDescendants(user: Ext.data.IModel) {
-    var jobs = Ext.StoreManager.lookup('Jobs');
-    var userJobs = Ext.StoreManager.lookup('UserJobs');
-
-    var jobNameArr: string[] = [];
-    var jobNum = Ext.getCmp('insertUserWindow').jobNum;
-    for (var i = 1; i <= jobNum; ++i) {
-        jobNameArr.push(getInputValueById('job' + i));
-    }
-    jobNameArr.forEach(jobName => {
-        var job = jobs.findRecord('Name', jobName, 0, false, true, true);
-        if (job) {
-            var uj = makeNewUserJob(user, job);
-            userJobs.add(uj);
-        } else {
-            job = Ext.create('Models.Job', { Name: jobName });
-            jobs.add(job);
-        }
-    });
-
-    var newJobs = jobs.getNewRecords();
-    if (newJobs.length > 0) {
-        syncAndLoad(jobs,() => {
-            newJobs.forEach(newJob => {
-                newJob = jobs.findRecord('Name', newJob.get('Name'), 0, false, true, true);
-                var uj = makeNewUserJob(user, newJob);
-                userJobs.add(uj);
-            });
-            syncAndCloseWindow(userJobs);
-        });
-    } else {
-        syncAndCloseWindow(userJobs);
-    }
 }
 
 function findOneByName(store: Ext.data.IStore, name: string) {
     return store.findRecord('Name', name, 0, false, true, true);
 }
 
-function makeNewUserJob(user: Ext.data.IModel, job: Ext.data.IModel): Ext.data.IModel {
-    return Ext.create('Models.UserJob', {
-        UserID: user.getId(),
-        JobID: job.getId()
-    });
-}
 
-function syncAndCloseWindow(store: Ext.data.IStore) {
-    syncAndLoad(store,() => {
-        //store.reload();
-        (<Ext.grid.IPanel>Ext.getCmp('userGrid')).getView().refresh();
-    });
-    Ext.WindowManager.get('insertUserWindow').destroy();
-} 
+

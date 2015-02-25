@@ -7,6 +7,7 @@ Ext.define('Views.AddJobsWindow', {
     modal: true,
     buttonAlign: 'left',
     closable: false,
+    userId: 0,
     jobNum: 0,
     items: [
         {
@@ -60,56 +61,11 @@ Ext.define('Views.AddJobsWindow', {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Check.png',
             text: 'OK',
             handler: () => {
-                var jobArr: string[] = [];
-                var jobNum = Ext.getCmp('addJobsWindow').jobNum
-                for (var i = 1; i <= jobNum; ++i) {
-                    jobArr.push(getInputValueById('job' + i));
-                }
-                var jobsStr = jobArr.join(',');
-
-                var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
                 var users = Ext.StoreManager.lookup('Users');
-
-                var ajw: Ext.window.IWindow = Ext.getCmp('addJobsWindow');
-                var arr = ajw.title.match(/.*?\(id(\d+)\)/i);
-                
-                if (!arr) console.log('fuck');
-                var user = users.getById(parseInt(arr[1]));
+                var addJobsWindow = Ext.WindowManager.get('addJobsWindow');
+                var user = users.getById(addJobsWindow['userId']);
                 console.log(user);
-                var jobs = Ext.StoreManager.lookup('Jobs');
-                var userJobs = Ext.StoreManager.lookup('UserJobs');
-                console.log(jobArr);
-                var jobObjs: Ext.data.IModel[] = [];
-                //jobArr.forEach(jobName => {
-                //    var jobCollection = jobs.query('Name', jobName, false, false, true);
-                //    var job: Ext.data.IModel;
-                //    if (jobCollection.getCount()) {
-                //        job = jobCollection.first();
-                //    } else {
-                //        // use extjs connections, should sync all stores
-                //        job = Ext.create('Models.Job', { Name: jobName });
-                //        jobs.add(job);
-                        
-                //        console.log('added job: ');
-                //        console.log(job);
-                //    }
-                //    jobObjs.push(job);
-                    
-                //});
-                //jobs.sync({
-                //    callback: () => {
-                        jobObjs.forEach(job => {
-                            console.log('adding userjob...');
-                            var userJob = Ext.create('Models.UserJob', { UserID: user.getId(), JobID: job.getId() });
-                            console.log(userJob);
-                            userJobs.add(userJob);
-                        });
-                        userJobs.sync();
-                //    }
-                //});
-                
-
-                Ext.WindowManager.get('addJobsWindow').destroy();
+                syncAddedJobs(user, addJobsWindow);
             }
         }, {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Redo.png',

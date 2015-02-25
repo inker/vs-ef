@@ -39,9 +39,59 @@ function reloadDataOneConnection() {
     });
 }
 
+function syncAddedJobs(user: Ext.data.IModel, window: Ext.IComponent) {
+    var jobs = Ext.StoreManager.lookup('Jobs');
+    var userJobs = Ext.StoreManager.lookup('UserJobs');
+
+    var jobNameArr: string[] = [];
+    var jobNum: number = window['jobNum'];
+    for (var i = 1; i <= jobNum; ++i) {
+        jobNameArr.push(getInputValueById('job' + i));
+    }
+    jobNameArr.forEach(jobName => {
+        var job = jobs.findRecord('Name', jobName, 0, false, true, true);
+        if (job) {
+            var uj = makeNewUserJob(user, job);
+            userJobs.add(uj);
+        } else {
+            job = Ext.create('Models.Job', { Name: jobName });
+            jobs.add(job);
+        }
+    });
+
+    var newJobs = jobs.getNewRecords();
+    if (newJobs.length > 0) {
+        syncAndLoad(jobs,() => {
+            newJobs.forEach(newJob => {
+                newJob = jobs.findRecord('Name', newJob.get('Name'), 0, false, true, true);
+                var uj = makeNewUserJob(user, newJob);
+                userJobs.add(uj);
+            });
+            syncAndCloseWindow(userJobs, window);
+        });
+    } else {
+        syncAndCloseWindow(userJobs, window);
+    }
+}
+
 function syncAndLoad(store: Ext.data.IStore, onSuccess: Function) {
     store.sync({
         success: () => store.load(onSuccess),
         failure: () => Ext.Msg.alert('Error', 'Data was not delivered to the server from ' + store.storeId, () => Ext.getCmp('userGrid').setLoading(false))
     });
+}
+
+function makeNewUserJob(user: Ext.data.IModel, job: Ext.data.IModel): Ext.data.IModel {
+    return Ext.create('Models.UserJob', {
+        UserID: user.getId(),
+        JobID: job.getId()
+    });
+}
+
+function syncAndCloseWindow(store: Ext.data.IStore, window: Ext.IComponent) {
+    syncAndLoad(store,() => {
+        //store.reload();
+        (<Ext.grid.IPanel>Ext.getCmp('userGrid')).getView().refresh();
+    });
+    window.destroy();
 }
