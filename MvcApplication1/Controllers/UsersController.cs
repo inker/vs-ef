@@ -149,9 +149,17 @@ namespace MvcApplication1.Controllers
 
         [HttpPost]
         [ActionName("Organisations")]
-        public ActionResult AddJob(OrganisationCustom[] orgs)
+        public ActionResult AddOrganisations(OrganisationCustom[] orgs)
         {
             DBInteraction.InsertOrganisations(orgs);
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpPut]
+        [ActionName("Organisations")]
+        public ActionResult UpdateOrganisations(OrganisationCustom[] orgs)
+        {
+            DBInteraction.UpdateOrganisations(orgs);
             return new HttpStatusCodeResult(200);
         }
 

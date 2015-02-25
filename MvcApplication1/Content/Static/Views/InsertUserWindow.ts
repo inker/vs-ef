@@ -1,11 +1,4 @@
-﻿function getInputValueById2(id: string) {
-    var table = <HTMLTableElement>Ext.get(id).dom;
-    table = <HTMLTableElement>table.tBodies[0];
-    var row = <HTMLTableRowElement>table.rows[0];
-    var cell = <HTMLTableCellElement>row.cells[1];
-    var input = <HTMLInputElement>cell.children[0];
-    return input.value;
-}
+﻿/// <reference path="../util" />
 
 Ext.define('Views.InsertUserWindow', {
     extend: 'Ext.window.Window',
@@ -89,69 +82,7 @@ Ext.define('Views.InsertUserWindow', {
         {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Check.png',
             text: 'OK',
-            handler: () => {
-                var insertParams = {
-                    Name: getInputValueById2('nameField'),
-                    Surname: getInputValueById2('surnameField'),
-                    Organisation: getInputValueById2('orgField')
-                };
-                var jobArr: string[] = [];
-                var jobNum = Ext.getCmp('insertUserWindow').jobNum
-                for (var i = 1; i <= jobNum; ++i) {
-                    jobArr.push(getInputValueById2('job' + i));
-                }
-                insertParams['Jobs'] = jobArr.join(',');
-                //Ext.Ajax.request({
-                //    url: '/Users',
-                //    params: insertParams,
-                //    method: 'POST',
-                //    success: util2.onAjaxSuccess,
-                //    failure: util2.onAjaxFail
-                //});
-                var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
-                var users = Ext.StoreManager.lookup('Users');
-                var orgs = Ext.StoreManager.lookup('Organisations');
-                var orgName = getInputValueById2('orgField');
-                var orgCollection = orgs.query('Name', orgName, false, false, true);
-                var org = (orgCollection.getCount()) ? orgCollection.first() : Ext.create('Models.Organisation', { Name: orgName });
-
-                orgs.add(org);
-                orgs.sync({
-                    callback: () => {
-                        var user: Ext.data.IModel = Ext.create('Models.User', {
-                            Name: getInputValueById2('nameField'),
-                            Surname: getInputValueById2('surnameField'),
-                            Organisation: org
-                        });
-
-                        users.add(user);
-                        users.sync({
-                            callback: () => {
-                                var jobs = Ext.StoreManager.lookup('Jobs');
-                                var jobCollection = jobs.query('Name', orgName, false, false, true);
-                                var userJobs = Ext.StoreManager.lookup('UserJobs');
-                                jobArr.forEach(jobName => {
-                                    var jobCollection = jobs.query('Name', jobName, false, false, true);
-                                    var job: Ext.data.IModel = (jobCollection.getCount()) ? jobCollection.first() : Ext.create('Models.Job', { Name: jobName });
-                                    jobs.add(job);
-                                    jobs.sync({
-                                        callback: () => {
-                                            var userJob = Ext.create('Models.UserJob', { UserID: user.getId(), JobID: job.getId() });
-                                            userJobs.add(userJob);
-                                            userJobs.sync();
-                                        }
-                                    });
-                                    
-                                }); 
-                                
-
-                                Ext.WindowManager.get('insertUserWindow').destroy();
-                            }
-                        });
-  
-                    }
-                });
-            }
+            handler: okButtonHandler
         }, {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Redo.png',
             text: 'Cancel',
@@ -159,3 +90,103 @@ Ext.define('Views.InsertUserWindow', {
         }
     ]
 });
+
+function okButtonHandler() {
+    Ext.WindowManager.get('insertUserWindow').hide();
+    var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
+    
+    var orgs = Ext.StoreManager.lookup('Organisations');
+    var orgName = getInputValueById('orgField');
+
+    var org = findOneByName(orgs, orgName);
+    if (org) {
+        syncOrgDescendants(org);
+    } else {
+        org = Ext.create('Models.Organisation', { Name: orgName });
+        orgs.add(org);
+        syncAndLoad(orgs,() => {
+            org = findOneByName(orgs, orgName);
+            if (!org) throw new Error("org sucks!");
+            console.log('newly created org should be: ');
+            console.log(org);
+            syncOrgDescendants(org);
+        }, "couldn't sync orgs");
+    }
+}
+
+function syncOrgDescendants(org: Ext.data.IModel) {
+    var users = Ext.StoreManager.lookup('Users');
+
+    var userName = getInputValueById('nameField');
+    var userSurname = getInputValueById('surnameField');
+    var user: Ext.data.IModel = Ext.create('Models.User', {
+        Name: userName,
+        Surname: userSurname,
+        OrganisationID: org.getId()
+    });
+
+    users.add(user);
+
+    syncAndLoad(users,() => {
+        var index = users.findBy((i: Ext.data.IModel) => i.get('Name') == userName && i.get('Surname') == userSurname);
+        user = users.getAt(index);
+        var jobs = Ext.StoreManager.lookup('Jobs');
+        var userJobs = Ext.StoreManager.lookup('UserJobs');
+
+        var jobNameArr: string[] = [];
+        var jobNum = Ext.getCmp('insertUserWindow').jobNum;
+        for (var i = 1; i <= jobNum; ++i) {
+            jobNameArr.push(getInputValueById('job' + i));
+        }
+        jobNameArr.forEach(jobName => {
+            var job = jobs.findRecord('Name', jobName, 0, false, true, true);
+            if (job) {
+                var uj = makeNewUserJob(user, job);
+                userJobs.add(uj);
+            } else {
+                job = Ext.create('Models.Job', { Name: jobName });
+                jobs.add(job);
+            }
+        });
+
+        var newJobs = jobs.getNewRecords();
+        if (newJobs.length > 0) {
+            syncAndLoad(jobs, () => {
+                newJobs.forEach(newJob => {
+                    newJob = jobs.findRecord('Name', newJob.get('Name'), 0, false, true, true);
+                    var uj = makeNewUserJob(user, newJob);
+                    userJobs.add(uj);
+                });
+                syncAndCloseWindow(userJobs);
+            }, "couldn't sync jobs");
+        } else {
+            syncAndCloseWindow(userJobs);
+        }
+    }, "couldn't sync users");
+}
+
+function findOneByName(store: Ext.data.IStore, name: string) {
+    return store.findRecord('Name', name, 0, false, true, true);
+}
+
+function syncAndLoad(store: Ext.data.IStore, onSuccess: Function, onFailureMessage: string) {
+    store.sync({
+        success: () => store.load(onSuccess),
+        failure: console.log(onFailureMessage)
+    });
+}
+
+function makeNewUserJob(user: Ext.data.IModel, job: Ext.data.IModel): Ext.data.IModel {
+    return Ext.create('Models.UserJob', {
+        UserID: user.getId(),
+        JobID: job.getId()
+    });
+}
+
+function syncAndCloseWindow(store: Ext.data.IStore) {
+    syncAndLoad(store,() => {
+        store.reload();
+        (<Ext.grid.IPanel>Ext.getCmp('userGrid')).getView().refresh();
+    }, "couldn't sync userjobs");
+    Ext.WindowManager.get('insertUserWindow').destroy();
+} 

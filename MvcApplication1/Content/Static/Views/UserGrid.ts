@@ -1,12 +1,28 @@
-﻿//import util = require('../util');
+﻿/// <reference path="../util" />
 
-function getInputValueById(id: string) {
-    var table = <HTMLTableElement>Ext.get(id).dom;
-    table = <HTMLTableElement>table.tBodies[0];
-    var row = <HTMLTableRowElement>table.rows[0];
-    var cell = <HTMLTableCellElement>row.cells[1];
-    var input = <HTMLInputElement>cell.children[0];
-    return input.value;
+function getOrgName(value, metadata, record, rowIndex, colIndex, store, view) {
+    return Ext.StoreManager.lookup('Organisations').getById(record.get('OrganisationID')).get('Name');
+}
+
+function findJobs(user) {
+    var jobArr = [];
+    console.log('job: ');
+    var jobs = Ext.StoreManager.lookup('Jobs');
+    console.log(jobs.storeId);
+    // get userjobs with specified user-id
+    // for each userjob find job by its id & push to job array
+    Ext.StoreManager.lookup('UserJobs')
+        .query('UserID', user.getId(), false, false, true)
+        .each(item => jobArr.push(jobs.getById(item.get('JobID'))));
+    console.log(jobArr);
+    return jobArr;
+}
+
+function getJobString(value, metadata, record, rowIndex, colIndex, store, view) {
+    console.log('getting job string');
+    // get jobs array, map them to job-name array & convert to string
+    var jobs = findJobs(record);
+    return jobs.map(job => job.get('Name')).join('<br>');
 }
 
 function getSelectedRows() {
@@ -28,67 +44,6 @@ function handleSelection() {
         ].forEach(button => button.setDisabled(!num));
     }
 
-}
-
-var findJobs = function (user) {
-    var jobArr = [];
-    console.log('job: ');
-    var jobs = Ext.StoreManager.lookup('Jobs');
-    console.log(jobs.storeId);
-    // get userjobs with specified user-id
-    // for each userjob find job by its id & push to job array
-    Ext.StoreManager.lookup('UserJobs')
-        .query('UserID', user.getId(), false, false, true)
-        .each(item => jobArr.push(jobs.getById(item.get('JobID'))));
-    console.log(jobArr);
-    return jobArr;
-};
-
-var util2 = {
-    onAllStoresLoad: function (callback: () => void) {
-        var loading = 0;
-        Ext.data.StoreManager.each(store => loading += store.isLoading());
-        if (!loading) {
-            callback();
-        }
-    },
-
-    onAjaxSuccess: function (response, options) {
-        this.reloadDataOneConnection();
-        Ext.getCmp('userGrid').setLoading(false);
-    },
-
-    onAjaxFail: function (response, options) {
-        Ext.Msg.alert('Error', 'Data was not delivered to the server',() => Ext.getCmp('userGrid').setLoading(false));
-    },
-
-    reloadDataOneConnection: function () {
-        Ext.Ajax.request({
-            url: '/Users',
-            method: 'GET',
-            success: res => {
-                var data = JSON.parse(res.responseText);
-                Ext.data.StoreManager.eachKey((key: string, store: Ext.data.IStore) => {
-                    if (key != 'ext-empty-store') {
-                        store.loadData(data[key]);
-                    }
-                });
-                this.onAllStoresLoad(() => Ext.getCmp('userGrid').getView().refresh());
-            },
-            failure: this.onAjaxFail
-        });
-    },
-
-    getJobString: function (value, metadata, record, rowIndex, colIndex, store, view) {
-        console.log('getting job string');
-        // get jobs array, map them to job-name array & convert to string
-        var jobs = findJobs(record);
-        return jobs.map(job => job.get('Name')).join('<br>');
-    },
-
-    getOrgName: function (value, metadata, record, rowIndex, colIndex, store, view) {
-        return Ext.StoreManager.lookup('Organisations').getById(record.get('OrganisationID')).get('Name');
-    }
 }
 
 Ext.define('Views.UserGrid', {
@@ -141,8 +96,8 @@ Ext.define('Views.UserGrid', {
     columns: [
         { text: 'ID', dataIndex: 'ID', width: '10%' },
         { text: 'Full Name', xtype: 'templatecolumn', tpl: '{Name} {Surname}' },
-        { text: "Organisation", renderer: util2.getOrgName },
-        { text: "Jobs", renderer: util2.getJobString },
+        { text: "Organisation", renderer: getOrgName },
+        { text: "Jobs", renderer: getJobString },
         {
             xtype: 'actioncolumn',
             items: [{
@@ -152,17 +107,12 @@ Ext.define('Views.UserGrid', {
                 handler: (grid: Ext.grid.IGridPanel, rowIndex: number) => {
                     grid.setLoading();
                     var rec = grid.getStore().getAt(rowIndex)
-                    console.log(rec.get('Name'));
-                    //Ext.Ajax.request({
-                    //    url: '/Users',
-                    //    params: {
-                    //        Name: rec.get('Name'),
-                    //        Surname: rec.get('Surname')
-                    //    },
-                    //    method: 'DELETE',
-                    //    success: util2.onAjaxSuccess,
-                    //    failure: util2.onAjaxFail
-                    //});
+                    var users = Ext.StoreManager.lookup('Users');
+                    users.remove(rec);
+                    users.sync({
+                        success: () => grid.setLoading(false),
+                        failure: () => Ext.Msg.alert('Error', 'Data was not delivered to the server',() => Ext.getCmp('userGrid').setLoading(false))
+                    });
                 }
             }]
         }

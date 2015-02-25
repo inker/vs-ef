@@ -7,9 +7,6 @@
         { name: 'OrganisationID', type: 'int' }
     ],
     idProperty: 'ID',
-    validations: [
-        { type: 'presence', field: 'ID' }
-    ],
     //belongsTo: { 
     //    model: 'Organisation',
     //    name: 'Organisation',
@@ -22,12 +19,32 @@
     //    //foreignStore: 'organisationStore'
     //},
     hasMany: {
-        model: 'UserJob',
+        model: 'Models.UserJob',
         name: 'UserJobs',
         primaryKey: 'ID',
-        foreignKey: 'UserID'
+        foreignKey: 'UserID',
+        associationKey: 'UserJobs'
     },
-    idgen: 'sequential',
-
+    //idgen: 'sequential',
+    proxy: {
+        type: 'ajax',
+        api: {
+            create: '/Users',
+            read: '/Users',
+            update: undefined,
+            destroy: '/Users'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'POST',
+            destroy: 'DELETE'
+        },
+        writer: {
+            type: 'json',
+            allowSingle: false,
+            writeAllFields: true,
+        },
+    }
 
 }); 

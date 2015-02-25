@@ -8,26 +8,7 @@
     //        { 'ID': 2, 'Name': 'Random', 'Surname': 'User', 'OrganisationID': 2 },
     //    ]
     //},
-    proxy: {
-        type: 'ajax',
-        api: {
-            create: '/Users',
-            read: '/Users',
-            update: undefined,
-            destroy: '/Users'
-        },
-        actionMethods: {
-            create: 'POST',
-            read: 'GET',
-            update: 'POST',
-            destroy: 'DELETE'
-        },
-        writer: {
-            type: 'json',
-            allowSingle: false,
-            writeAllFields: true,
-        },
-    }
+
     //proxy: {
     //    type: 'memory',
     //    reader: {

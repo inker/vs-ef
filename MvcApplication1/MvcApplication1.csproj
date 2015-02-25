@@ -784,6 +784,7 @@
     <TypeScriptCompile Include="Content\Static\Stores\OrganisationStore.ts" />
     <TypeScriptCompile Include="Content\Static\Stores\UserJobStore.ts" />
     <TypeScriptCompile Include="Content\Static\Stores\UserStore.ts" />
+    <TypeScriptCompile Include="Content\Static\util.ts" />
     <TypeScriptCompile Include="Content\Static\Views\AddJobsWindow.ts" />
     <TypeScriptCompile Include="Content\Static\Views\InsertUserWindow.ts" />
     <TypeScriptCompile Include="Content\Static\Views\UserGrid.ts" />

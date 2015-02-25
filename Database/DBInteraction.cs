@@ -384,7 +384,12 @@ namespace DBManager
             foreach (var j in jobs) Console.Write(j + ", ");
             InsertUser(name, surname, org, jobs.ToArray());
         }
-    
+
+
+        public static void UpdateOrganisations(OrganisationCustom[] orgs)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

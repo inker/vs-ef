@@ -6,10 +6,25 @@
         { name: 'JobID', type: 'int' }
     ],
     idProperty: 'ID',
-    validations: [
-        { type: 'presence', field: 'ID' },
-        { type: 'presence', field: 'UserID' },
-        { type: 'presence', field: 'JobID' }
-    ],
-    idgen: 'sequential',
+    //idgen: 'sequential',
+    proxy: {
+        type: 'ajax',
+        api: {
+            create: '/Users/UserJobs',
+            read: '/Users/UserJobs',
+            update: undefined,
+            destroy: '/Users/UserJobs'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'POST',
+            destroy: 'DELETE'
+        },
+        writer: {
+            type: 'json',
+            allowSingle: false,
+            writeAllFields: true,
+        },
+    }
 });

@@ -1,35 +1,43 @@
-//import util = require('./util');
-// use kludge instead
-var util = {
-    onAllStoresLoad: function (callback: () => void) {
-        var loading = 0;
-        Ext.data.StoreManager.each(store => loading += store.isLoading());
-        if (!loading) {
-            callback();
-        }
+/// <reference path="./util" />
+
+var storesToLoad = 5;
+//function onAllStoresLoad(callback: () => void) {
+//    var loading = 0;
+//    Ext.data.StoreManager.each(store => loading += store.isLoading());
+//    if (!loading) {
+//        callback();
+//    }
+//}
+
+function onAllStoresLoad(callback: () => void) {
+    --storesToLoad;
+    if (!storesToLoad) {
+        callback();
     }
-};
+}
 
 Ext.onReady(() => {
     var orgs: Ext.data.IStore = Ext.create('Stores.OrganisationStore', {
         storeId: 'Organisations',
-        autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
+        //autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     var users: Ext.data.IStore = Ext.create('Stores.UserStore', {
         storeId: 'Users',
-        autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
+        //autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     var jobs: Ext.data.IStore = Ext.create('Stores.JobStore', {
         storeId: 'Jobs',
-        autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
+        //autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
 
     var userJobs: Ext.data.IStore = Ext.create('Stores.UserJobStore', {
         storeId: 'UserJobs',
-        autoLoad: { callback: () => util.onAllStoresLoad(initGUI) }
+        //autoLoad: { callback: () => onAllStoresLoad(initGUI) }
     });
+
+    Ext.StoreManager.each(store => store.load(() => onAllStoresLoad(initGUI)));
 
     //users.add(Ext.create('Models.USer
     //setTimeout(() => users.sync(), 2000);

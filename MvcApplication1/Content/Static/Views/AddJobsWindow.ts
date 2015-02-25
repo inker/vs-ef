@@ -1,11 +1,4 @@
-﻿function getInputValueById3(id: string) {
-    var table = <HTMLTableElement>Ext.get(id).dom;
-    table = <HTMLTableElement>table.tBodies[0];
-    var row = <HTMLTableRowElement>table.rows[0];
-    var cell = <HTMLTableCellElement>row.cells[1];
-    var input = <HTMLInputElement>cell.children[0];
-    return input.value;
-}
+﻿/// <reference path="../util" />
 
 Ext.define('Views.AddJobsWindow', {
     extend: 'Ext.window.Window',
@@ -70,7 +63,7 @@ Ext.define('Views.AddJobsWindow', {
                 var jobArr: string[] = [];
                 var jobNum = Ext.getCmp('addJobsWindow').jobNum
                 for (var i = 1; i <= jobNum; ++i) {
-                    jobArr.push(getInputValueById3('job' + i));
+                    jobArr.push(getInputValueById('job' + i));
                 }
                 var jobsStr = jobArr.join(',');
 

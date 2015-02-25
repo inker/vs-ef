@@ -5,15 +5,32 @@
         { name: 'Name', type: 'string' },
     ],
     idProperty: 'ID',
-    validations: [
-        { type: 'presence', field: 'ID' }
-    ],
     hasMany: {
-        model: 'User',
+        model: 'Models.User',
         name: 'Users',
         primaryKey: 'ID',
         foreignKey: 'OrganisationID',
+        associationKey: 'Users'
     },
-    idgen: 'sequential',
-
+    //idgen: 'sequential',
+    proxy: {
+        type: 'ajax',
+        api: {
+            create: '/Users/Organisations',
+            read: '/Users/Organisations',
+            update: '/Users/Organisations',
+            destroy: '/Users/Organisations'
+        },
+        actionMethods: {
+            create: 'POST',
+            read: 'GET',
+            update: 'PUT',
+            destroy: 'DELETE'
+        },
+        writer: {
+            type: 'json',
+            allowSingle: false,
+            writeAllFields: true,
+        },
+    }
 });  

@@ -15,24 +15,5 @@
     //        root: 'items'
     //    }
     //}
-    proxy: {
-        type: 'ajax',
-        api: {
-            create: '/Users/Organisations',
-            read: '/Users/Organisations',
-            update: undefined,
-            destroy: '/Users/Organisations'
-        },
-        actionMethods: {
-            create: 'POST',
-            read: 'GET',
-            update: 'POST',
-            destroy: 'DELETE'
-        },
-        writer: {
-            type: 'json',
-            allowSingle: false,
-            writeAllFields: true,
-        },
-    }
+
 }); 
