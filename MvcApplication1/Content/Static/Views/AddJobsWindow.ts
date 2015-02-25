@@ -8,6 +8,7 @@ Ext.define('Views.AddJobsWindow', {
     buttonAlign: 'left',
     closable: false,
     userId: 0,
+    mode: 'add',
     jobNum: 0,
     items: [
         {
@@ -65,7 +66,12 @@ Ext.define('Views.AddJobsWindow', {
                 var addJobsWindow = Ext.WindowManager.get('addJobsWindow');
                 var user = users.getById(addJobsWindow['userId']);
                 console.log(user);
-                syncAddedJobs(user, addJobsWindow);
+                if (addJobsWindow['mode'] == 'add') {
+                    syncAddedJobs(user, addJobsWindow);
+                } else if (addJobsWindow['mode'] == 'remove') {
+                    syncRemovedJobs(user, addJobsWindow);
+                }
+                
             }
         }, {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Redo.png',

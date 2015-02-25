@@ -7,6 +7,10 @@
     return input.value;
 }
 
+function findOneByName(store: Ext.data.IStore, name: string) {
+    return store.findRecord('Name', name, 0, false, true, true);
+}
+
 function onAjaxSuccess(response, options) {
     reloadDataOneConnection();
     Ext.getCmp('userGrid').setLoading(false);
@@ -72,6 +76,27 @@ function syncAddedJobs(user: Ext.data.IModel, window: Ext.IComponent) {
     } else {
         syncAndCloseWindow(userJobs, window);
     }
+}
+
+function syncRemovedJobs(user: Ext.data.IModel, window: Ext.IComponent) {
+    var jobs = Ext.StoreManager.lookup('Jobs');
+    var userJobs = Ext.StoreManager.lookup('UserJobs');
+
+    var jobNameArr: string[] = [];
+    var jobNum: number = window['jobNum'];
+    for (var i = 1; i <= jobNum; ++i) {
+        jobNameArr.push(getInputValueById('job' + i));
+    }
+    jobNameArr.forEach(jobName => {
+        var job = jobs.findRecord('Name', jobName, 0, false, true, true);
+        if (job) {
+            var index = userJobs.findBy((i: Ext.data.IModel) => i.get('UserID') == user.getId() && i.get('JobID') == job.getId());
+            if (index > -1) {
+                userJobs.removeAt(index);
+            }
+        }
+    });
+    syncAndCloseWindow(userJobs, window);
 }
 
 function syncAndLoad(store: Ext.data.IStore, onSuccess: Function) {

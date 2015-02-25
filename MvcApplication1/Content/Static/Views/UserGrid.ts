@@ -78,12 +78,7 @@ Ext.define('Views.UserGrid', {
             text: 'Add job to user',
             disabled: true,
             handler: () => {
-                var sel = getSelectedRows()[0];
-                Ext.create('Views.AddJobsWindow', {
-                    id: 'addJobsWindow',
-                    userId: sel.getId(),
-                    title: sel.get('Name') + ' ' + sel.get('Surname') + ' (id' + sel.getId() + ')'
-                }).show();
+                jobOperationButtonHandler('add')
             }
 
         }, {
@@ -91,7 +86,9 @@ Ext.define('Views.UserGrid', {
             icon: 'https://cdn3.iconfinder.com/data/icons/musthave/16/Delete.png',
             text: 'Remove job from user',
             disabled: true,
-            handler: () => jobOperationButtonHandler('remove')
+            handler: () => {
+               jobOperationButtonHandler('remove')
+            }
         }
     ],
     columns: [
@@ -147,32 +144,12 @@ function deleteSelectedHandler() {
     users.sync(); // to sync between the proxy & the database
 }
 
-function jobOperationButtonHandler(action: string) {
-    //var add: boolean;
-    //if (action == 'add') add = true;
-    //else if (action == 'remove') add = false;
-    //else return;
-    //resetToolbarAndButton();
-    //tb.add({
-    //    id: 'jobField',
-    //    xtype: 'textfield',
-    //    name: 'Job',
-    //    emptyText: 'job to ' + action
-    //});
-    //tb.show();
-    //button.setText(add ? 'Proceed' : 'Remove job');
-    //button.setHandler(() => {
-    //    gridPanel.setLoading();
-    //    Ext.Ajax.request({
-    //        url: '/Users/Jobs/' + getInputValueById('jobField'),
-    //        params: {
-    //            Name: getInputValueById('nameField'),
-    //            Surname: getInputValueById('surnameField')
-    //        },
-    //        method: add ? 'POST' : 'DELETE',
-    //        success: onAjaxSuccess,
-    //        failure: onAjaxFail
-    //    });
-    //    resetToolbarAndButton();
-    //});
+function jobOperationButtonHandler(mode: string) {
+    var sel = getSelectedRows()[0];
+    Ext.create('Views.AddJobsWindow', {
+        id: 'addJobsWindow',
+        userId: sel.getId(),
+        mode: mode,
+        title: sel.get('Name') + ' ' + sel.get('Surname') + ' (id' + sel.getId() + ')'
+    }).show();
 }

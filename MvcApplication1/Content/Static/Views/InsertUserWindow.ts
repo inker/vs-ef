@@ -133,9 +133,5 @@ function syncOrgDescendants(org: Ext.data.IModel) {
     });
 }
 
-function findOneByName(store: Ext.data.IStore, name: string) {
-    return store.findRecord('Name', name, 0, false, true, true);
-}
-
 
 
