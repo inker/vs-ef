@@ -105,14 +105,11 @@ Ext.define('Views.UserGrid', {
                 tooltip: 'delete user',
                 tooltipType: 'title',
                 handler: (grid: Ext.grid.IGridPanel, rowIndex: number) => {
-                    grid.setLoading();
                     var rec = grid.getStore().getAt(rowIndex)
                     var users = Ext.StoreManager.lookup('Users');
                     users.remove(rec);
-                    users.sync({
-                        success: () => grid.setLoading(false),
-                        failure: () => Ext.Msg.alert('Error', 'Data was not delivered to the server',() => Ext.getCmp('userGrid').setLoading(false))
-                    });
+                    users.sync();
+                    //syncAndLoad(users,() => grid.setLoading(false));
                 }
             }]
         }

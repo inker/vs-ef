@@ -110,7 +110,7 @@ function okButtonHandler() {
             console.log('newly created org should be: ');
             console.log(org);
             syncOrgDescendants(org);
-        }, "couldn't sync orgs");
+        });
     }
 }
 
@@ -126,54 +126,50 @@ function syncOrgDescendants(org: Ext.data.IModel) {
     });
 
     users.add(user);
-
-    syncAndLoad(users,() => {
+    syncAndLoad(users, () => {
         var index = users.findBy((i: Ext.data.IModel) => i.get('Name') == userName && i.get('Surname') == userSurname);
         user = users.getAt(index);
-        var jobs = Ext.StoreManager.lookup('Jobs');
-        var userJobs = Ext.StoreManager.lookup('UserJobs');
+        syncUserDescendants(user);
+    });
+}
 
-        var jobNameArr: string[] = [];
-        var jobNum = Ext.getCmp('insertUserWindow').jobNum;
-        for (var i = 1; i <= jobNum; ++i) {
-            jobNameArr.push(getInputValueById('job' + i));
-        }
-        jobNameArr.forEach(jobName => {
-            var job = jobs.findRecord('Name', jobName, 0, false, true, true);
-            if (job) {
-                var uj = makeNewUserJob(user, job);
-                userJobs.add(uj);
-            } else {
-                job = Ext.create('Models.Job', { Name: jobName });
-                jobs.add(job);
-            }
-        });
+function syncUserDescendants(user: Ext.data.IModel) {
+    var jobs = Ext.StoreManager.lookup('Jobs');
+    var userJobs = Ext.StoreManager.lookup('UserJobs');
 
-        var newJobs = jobs.getNewRecords();
-        if (newJobs.length > 0) {
-            syncAndLoad(jobs, () => {
-                newJobs.forEach(newJob => {
-                    newJob = jobs.findRecord('Name', newJob.get('Name'), 0, false, true, true);
-                    var uj = makeNewUserJob(user, newJob);
-                    userJobs.add(uj);
-                });
-                syncAndCloseWindow(userJobs);
-            }, "couldn't sync jobs");
+    var jobNameArr: string[] = [];
+    var jobNum = Ext.getCmp('insertUserWindow').jobNum;
+    for (var i = 1; i <= jobNum; ++i) {
+        jobNameArr.push(getInputValueById('job' + i));
+    }
+    jobNameArr.forEach(jobName => {
+        var job = jobs.findRecord('Name', jobName, 0, false, true, true);
+        if (job) {
+            var uj = makeNewUserJob(user, job);
+            userJobs.add(uj);
         } else {
-            syncAndCloseWindow(userJobs);
+            job = Ext.create('Models.Job', { Name: jobName });
+            jobs.add(job);
         }
-    }, "couldn't sync users");
+    });
+
+    var newJobs = jobs.getNewRecords();
+    if (newJobs.length > 0) {
+        syncAndLoad(jobs,() => {
+            newJobs.forEach(newJob => {
+                newJob = jobs.findRecord('Name', newJob.get('Name'), 0, false, true, true);
+                var uj = makeNewUserJob(user, newJob);
+                userJobs.add(uj);
+            });
+            syncAndCloseWindow(userJobs);
+        });
+    } else {
+        syncAndCloseWindow(userJobs);
+    }
 }
 
 function findOneByName(store: Ext.data.IStore, name: string) {
     return store.findRecord('Name', name, 0, false, true, true);
-}
-
-function syncAndLoad(store: Ext.data.IStore, onSuccess: Function, onFailureMessage: string) {
-    store.sync({
-        success: () => store.load(onSuccess),
-        failure: console.log(onFailureMessage)
-    });
 }
 
 function makeNewUserJob(user: Ext.data.IModel, job: Ext.data.IModel): Ext.data.IModel {
@@ -185,8 +181,8 @@ function makeNewUserJob(user: Ext.data.IModel, job: Ext.data.IModel): Ext.data.I
 
 function syncAndCloseWindow(store: Ext.data.IStore) {
     syncAndLoad(store,() => {
-        store.reload();
+        //store.reload();
         (<Ext.grid.IPanel>Ext.getCmp('userGrid')).getView().refresh();
-    }, "couldn't sync userjobs");
+    });
     Ext.WindowManager.get('insertUserWindow').destroy();
 } 

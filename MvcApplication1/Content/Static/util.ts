@@ -38,3 +38,10 @@ function reloadDataOneConnection() {
         failure: onAjaxFail
     });
 }
+
+function syncAndLoad(store: Ext.data.IStore, onSuccess: Function) {
+    store.sync({
+        success: () => store.load(onSuccess),
+        failure: () => Ext.Msg.alert('Error', 'Data was not delivered to the server from ' + store.storeId, () => Ext.getCmp('userGrid').setLoading(false))
+    });
+}
