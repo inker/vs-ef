@@ -1,51 +1,5 @@
 ﻿/// <reference path="../util" />
 
-function getOrgName(value, metadata, record, rowIndex, colIndex, store, view) {
-    return Ext.StoreManager.lookup('Organisations').getById(record.get('OrganisationID')).get('Name');
-}
-
-function findJobs(user) {
-    var jobArr = [];
-    console.log('job: ');
-    var jobs = Ext.StoreManager.lookup('Jobs');
-    console.log(jobs.storeId);
-    // get userjobs with specified user-id
-    // for each userjob find job by its id & push to job array
-    Ext.StoreManager.lookup('UserJobs')
-        .query('UserID', user.getId(), false, false, true)
-        .each(item => jobArr.push(jobs.getById(item.get('JobID'))));
-    console.log(jobArr);
-    return jobArr;
-}
-
-function getJobString(value, metadata, record, rowIndex, colIndex, store, view) {
-    console.log('getting job string');
-    // get jobs array, map them to job-name array & convert to string
-    var jobs = findJobs(record);
-    return jobs.map(job => job.get('Name')).join('<br>');
-}
-
-function getSelectedRows() {
-    var sel: Ext.selection.IRowModel = Ext.getCmp('userGrid').getSelectionModel();
-    return sel.getSelection() 
-}
-
-function handleSelection() {
-    var num = getSelectedRows().length;
-    if (num > 1) {
-        Ext.getCmp('deleteSelectedButton').setDisabled(false);
-        Ext.getCmp('addJobButton').setDisabled(true)
-        Ext.getCmp('removeJobButton').setDisabled(true)
-    } else {
-        [
-            Ext.getCmp('deleteSelectedButton'),
-            Ext.getCmp('addJobButton'),
-            Ext.getCmp('removeJobButton')
-        ].forEach(button => button.setDisabled(!num));
-    }
-
-}
-
 Ext.define('Views.UserGrid', {
     extend: 'Ext.grid.Panel',
     id: 'userGrid',
@@ -124,22 +78,58 @@ Ext.define('Views.UserGrid', {
     renderTo: Ext.getBody()
 });
 
+function getOrgName(value, metadata, record) {
+    return Ext.StoreManager.lookup('Organisations').getById(record.get('OrganisationID')).get('Name');
+}
+
+function findJobs(user) {
+    var jobArr = [];
+    console.log('job: ');
+    var jobs = Ext.StoreManager.lookup('Jobs');
+    console.log(jobs.storeId);
+    // get userjobs with specified user-id
+    // for each userjob find job by its id & push to job array
+    Ext.StoreManager.lookup('UserJobs')
+        .query('UserID', user.getId(), false, false, true)
+        .each(item => jobArr.push(jobs.getById(item.get('JobID'))));
+    console.log(jobArr);
+    return jobArr;
+}
+
+function getJobString(value, metadata, record, rowIndex, colIndex, store, view) {
+    console.log('getting job string');
+    // get jobs array, map them to job-name array & convert to string
+    var jobs = findJobs(record);
+    return jobs.map(job => job.get('Name')).join('<br>');
+}
+
+function getSelectedRows() {
+    var sel: Ext.selection.IRowModel = Ext.getCmp('userGrid').getSelectionModel();
+    return sel.getSelection()
+}
+
+function handleSelection() {
+    var num = getSelectedRows().length;
+    if (num > 1) {
+        Ext.getCmp('deleteSelectedButton').setDisabled(false);
+        Ext.getCmp('addJobButton').setDisabled(true)
+        Ext.getCmp('removeJobButton').setDisabled(true)
+    } else {
+        [
+            Ext.getCmp('deleteSelectedButton'),
+            Ext.getCmp('addJobButton'),
+            Ext.getCmp('removeJobButton')
+        ].forEach(button => button.setDisabled(!num));
+    }
+
+}
+
 function deleteSelectedHandler() {
     var ug: Ext.grid.IPanel = Ext.getCmp('userGrid');
     var users = Ext.StoreManager.lookup('Users');
     var selectedRows = ug.getSelectionModel().getSelection();
     selectedRows.forEach(row => {
         users.remove(row); // removes from the grid too
-        //Ext.Ajax.request({
-        //    url: '/Users',
-        //    params: {
-        //        Name: row.get('Name'),
-        //        Surname: row.get('Surname')
-        //    },
-        //    method: 'DELETE',
-        //    success: util2.onAjaxSuccess,
-        //    failure: util2.onAjaxFail
-        //});
     });
     users.sync(); // to sync between the proxy & the database
 }
